@@ -1,6 +1,7 @@
 package com.assignment_alert.Assignment_Alert.assignments;
 
 import java.net.URI;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -8,10 +9,13 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.assignment_alert.Assignment_Alert.canvas.CanvasSyncService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,38 +26,43 @@ public class AssignmentsController {
 
     private final AssignmentService assignmentService;
 
-    @PostMapping
-    public ResponseEntity<Assignments> saveAssingment(@RequestBody AssignmentRegistrationRequest request) {
-        Assignments assignment = assignmentService.saveAssignment(request);
-        URI url = URI.create("api/v1/assignments/" + assignment.getAssignmentId());
-        return ResponseEntity.created(url).body(assignment);
-    }
-
-    @GetMapping(value="/{assignmentId}")
-    public ResponseEntity<Assignments> getAssignmentById(@PathVariable("assignmentId") Long assignmentId) {
-        return ResponseEntity.ok(assignmentService.getAssignmentById(assignmentId));
-    }
-
     @GetMapping
-    public ResponseEntity<Page<Assignments>> getAllAssignments(
-            @RequestParam(defaultValue="0") int page, 
-            @RequestParam(defaultValue="10") int size,
-            @RequestParam(defaultValue="assignmentId") String sortBy) {
-        return ResponseEntity.ok(assignmentService.getAllAssignments(page, size, sortBy));
+    public ResponseEntity<List<AssignmentResponseDTO>> getAssignments(@RequestParam(required = false) Long courseId, @RequestParam(required = false) String filter) {
+        if(courseId != null) {
+            return ResponseEntity.ok(assignmentService.getAssignmentsByCourse(courseId));
+        }
+
+        if(filter.equals("upcoming")) {
+            return ResponseEntity.ok(assignmentService.getUpcomingAssignments());
+        }
+
+        if(filter.equals("incomplete")) {
+            return ResponseEntity.ok(assignmentService.getIncompleteAssignments());
+        }
+
+        if(filter.equals("blocking")) {
+            return ResponseEntity.ok(assignmentService.getActiveBlockingAssignments());
+        }
+
+        return ResponseEntity.ok(assignmentService.getUpcomingAssignments());
     }
 
-    @PostMapping(value="/{assignmentId}")
-    public ResponseEntity<Void> updateAssignment(@PathVariable("id") Long id, @RequestBody AssignmentUpdateRequest request) {
-        assignmentService.updateAssignment(id, request);
-        return ResponseEntity.noContent().build();
+    @GetMapping("/{assignmentId}")
+    public ResponseEntity<AssignmentResponseDTO> getAssignment(@PathVariable Long assignmentId) {
+        return ResponseEntity.ok(assignmentService.getAssignment(assignmentId));
     }
 
-    @DeleteMapping(value="/{assignmentId}")
-    public ResponseEntity<Void> deleteAssignment(@PathVariable("assignmentId") Long id) {
-        assignmentService.deleteAssignment(id);
-        return ResponseEntity.noContent().build();
+    @PutMapping("/{assignmentId}")
+    public ResponseEntity<AssignmentResponseDTO> updateAssignment(@PathVariable Long assignmentId, @RequestBody AssignmentUpdateRequest updateRequest) {
+        return ResponseEntity.ok(assignmentService.updateAssignment(assignmentId, updateRequest));
     }
- 
-        // Implementted pagtion for get all, next to do is add expceptions
-    
+
+    @PutMapping("/{assignmentId}/completed")
+    public ResponseEntity<AssignmentResponseDTO> markAsCompleted(@PathVariable Long assignmentId, @PathVariable Boolean completed) {
+        return ResponseEntity.ok(assignmentService.markAsCompleted(assignmentId, completed));
+    }
+
+
 }
+
+    

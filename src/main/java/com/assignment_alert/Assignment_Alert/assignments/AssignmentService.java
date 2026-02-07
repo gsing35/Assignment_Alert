@@ -1,11 +1,15 @@
 package com.assignment_alert.Assignment_Alert.assignments;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.assignment_alert.Assignment_Alert.courses.CourseRepository;
-import com.assignment_alert.Assignment_Alert.courses.Courses;
+import com.assignment_alert.Assignment_Alert.canvas.CanvasSyncService;
+import com.assignment_alert.Assignment_Alert.courses.Course;
+import com.assignment_alert.Assignment_Alert.exceptions.*;
 
 import jakarta.transaction.Transactional;
-
-import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,77 +24,89 @@ import lombok.RequiredArgsConstructor;
 public class AssignmentService {
 
     private final AssignmentRepository assignmentRepo;
-    private final CourseRepository courseRepo;
+    private final CanvasSyncService canvasSyncService;
 
-    public Assignments saveAssignment(AssignmentRegistrationRequest request) {
-        Courses course = courseRepo.findById(request.courseId()).orElseThrow(() -> new IllegalStateException());
-        Assignments assignment = request.toEntity(course);
-        return assignmentRepo.save(assignment);
+    public List<AssignmentResponseDTO> getUpcomingAssignments() {
+            return assignmentRepo.findByDueAtAfterOrderByDueAtAsc(LocalDateTime.now())
+            .stream()
+            .map(AssignmentResponseDTO::from)
+            .collect(Collectors.toList());
     }
 
-    public Assignments getAssignmentById(Long id) {
-        // TODO Exceptions
-        return assignmentRepo.findById(id).orElseThrow(() -> new IllegalStateException());
+    public List<AssignmentResponseDTO> getAssignmentsByCourse(Long courseId) {
+        return assignmentRepo.findByCanvasCourseIdOrderByDueAtAsc(courseId)
+        .stream()
+        .map(AssignmentResponseDTO::from)
+        .collect(Collectors.toList());
     }
 
-    public Page<Assignments> getAllAssignments(int page, int size, String sortBy) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        return assignmentRepo.findAll(pageable);
+    public AssignmentResponseDTO getAssignmentByCanvasAssignmentId(Long canvasAssignmentId) {
+        Assignment assignment = assignmentRepo.findByCanvasAssignmentId(canvasAssignmentId).orElseThrow(() -> new AssignmentNotFoundException("Assignment Not Found"));
+        return AssignmentResponseDTO.from(assignment);
+    }
+
+    public AssignmentResponseDTO getAssignment(Long canvasAssignmentId) {
+        Assignment assignment = assignmentRepo.findByCanvasAssignmentId(canvasAssignmentId).orElseThrow(() -> new AssignmentNotFoundException("Assignment Not Found"));
+        return AssignmentResponseDTO.from(assignment);
+    }
+
+    public List<AssignmentResponseDTO> getIncompleteAssignments() {
+        return assignmentRepo.findByCompletedFalseOrderByDueAtAsc()
+        .stream()
+        .map(AssignmentResponseDTO::from)
+        .collect(Collectors.toList());
+    }
+
+    public List<AssignmentResponseDTO> getActiveBlockingAssignments() {
+        return assignmentRepo.findByBlockingEnabledTrueAndDueAtAfter(LocalDateTime.now())
+        .stream()
+        .map(AssignmentResponseDTO::from)
+        .collect(Collectors.toList());
+    }
+
+    public List<AssignmentResponseDTO> getAssignmentsByPriority(Priority priority) {
+        return assignmentRepo.findByPriorityOrderByDueAtAsc(priority)
+        .stream()
+        .map(AssignmentResponseDTO::from)
+        .collect(Collectors.toList());
     }
 
     @Transactional
-    public void updateAssignment(Long id, AssignmentUpdateRequest request) {
-        Assignments assignment = assignmentRepo.findById(id).orElseThrow(() -> new IllegalStateException());
+    public AssignmentResponseDTO updateAssignment(Long id, AssignmentUpdateRequest updateRequest) {
+        Assignment assignment = assignmentRepo.findById(id).orElseThrow(() -> new AssignmentNotFoundException("Assignment Not Found"));
 
-        boolean changes = applyChanges(assignment, request);
-
-        if(!changes) {
-            throw new IllegalStateException("No changes were made");
+        if(updateRequest.priority() != null) {
+            assignment.setPriority(updateRequest.priority());
         }
 
-        assignmentRepo.save(assignment);
+        if(updateRequest.blockedUntil() != null) {
+            assignment.setBlockedUntil(updateRequest.blockedUntil());
+        }
+
+        if(updateRequest.blockingEnabled() != null) {
+            assignment.setBlockingEnabled(updateRequest.blockingEnabled());
+        }
+
+        Assignment updated = assignmentRepo.save(assignment);
+        return AssignmentResponseDTO.from(updated);
     }
 
-    public void deleteAssignment(Long id) {
-        Assignments assignment = assignmentRepo.findById(id).orElseThrow(() -> new IllegalStateException());
-        assignmentRepo.delete(assignment);
-    }
+    @Transactional
+    public AssignmentResponseDTO markAsCompleted(Long id, Boolean completed) {
+        Assignment assignment = assignmentRepo.findById(id).orElseThrow(() -> new AssignmentNotFoundException("Assignment Not Found"));
+        assignment.setCompleted(completed);
 
-    public boolean applyChanges(Assignments assignment, AssignmentUpdateRequest request) {
-
-        boolean changes = false;
-
-        if(!assignment.getDueDate().equals(request.dueDate())) {
-            assignment.setDueDate(request.dueDate());
-            changes = true;
+        if(completed) {
+            assignment.setCompletedAt(LocalDateTime.now());
+        }
+        else {
+            assignment.setCompleted(null);
         }
 
-        if(!assignment.getCompleted().equals(request.completed())) {
-            assignment.setCompleted(request.completed());
-            changes = true;
-        }
+        Assignment completedAssignment = assignmentRepo.save(assignment);
 
-        if(!assignment.getPriority().equals(request.priority())) {
-            assignment.setPriority(request.priority());
-            changes = true;
-        }
-
-        if(!assignment.getReminderSent().equals(request.reminderSent())) {
-            assignment.setReminderSent(request.reminderSent());
-            changes = true;
-        }
-
-        if(assignment.getBlockedUntil().equals(request.reminderSent())) {
-            assignment.setBlockedUntil(request.blockedUntil());
-            changes = true;
-        }
-
-        if(assignment.getBlockingEnabled().equals(request.blockingEnabled())) {
-            assignment.setBlockingEnabled(request.blockingEnabled());
-            changes = true;
-        }
-
-        return changes;
+        return AssignmentResponseDTO.from(completedAssignment);
+        
     }
 
 }

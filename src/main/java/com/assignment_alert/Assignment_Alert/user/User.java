@@ -1,6 +1,7 @@
 package com.assignment_alert.Assignment_Alert.user;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.assignment_alert.Assignment_Alert.courses.Course;
@@ -23,7 +24,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name="users", uniqueConstraints={
-    @UniqueConstraint(name="unique_token", columnNames="encrypted_token"),
+    @UniqueConstraint(name="aws_arn", columnNames="aws_secret_arn"),
     @UniqueConstraint(name="unique_canvas_id", columnNames="canvas_id"),
     @UniqueConstraint(name="unique_email", columnNames="email")
 })
@@ -33,25 +34,26 @@ public class User {
     @Id
     @SequenceGenerator(name="user_id_seq", sequenceName="user_id_seq", allocationSize=1)
     @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="user_id_seq")
-    @Column(nullable=false)
-    private Long id;
+    @Column(nullable=false, updatable=false)
+    private Long userId;
 
     @Column(nullable=false, columnDefinition="TEXT")
     private String schoolDomain;
 
     @Column(nullable=false, columnDefinition="TEXT")
-    private String encryptedCanvasToken;
+    private String awsSecretArn;
 
-    @Column(nullable=false)
+    @Column(nullable=false, updatable=false)
     private Long canvasId;
 
+    @Column
     private String name;
 
     @OneToMany(mappedBy="user", cascade=CascadeType.ALL)
-    private List<Course> courses;
+    private List<Course> courses = new ArrayList<>();
 
-    private LocalDateTime lastSynced;
-
+    @Column
     private String email;
+    
 
 }

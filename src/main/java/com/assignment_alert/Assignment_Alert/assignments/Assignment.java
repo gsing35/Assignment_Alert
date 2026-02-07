@@ -1,6 +1,7 @@
 package com.assignment_alert.Assignment_Alert.assignments;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import com.assignment_alert.Assignment_Alert.courses.Course;
 
@@ -12,6 +13,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
@@ -26,14 +28,19 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Table(name="assignments", uniqueConstraints={
-    @UniqueConstraint(name="unique_assignment_url", columnNames="url")
-})
+@Table(
+    name = "assignments",
+    indexes = {
+        @Index(name = "canvas_assignment_id", columnList = "canvas_assignment_id"),
+        @Index(name = "due_at", columnList = "due_at"),
+        @Index(name = "completed", columnList = "completed")
+    }
+)
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Assignments {
+public class Assignment {
 
     @Id
     @SequenceGenerator(name="assignment_id_seq", sequenceName="assignment_id_seq", allocationSize=1)
@@ -45,18 +52,14 @@ public class Assignments {
     @Column(nullable=false, columnDefinition="TEXT")
     private String assignmentName;
 
+    @Column(name = "canvas_assignment_id", nullable = false, unique = true)
+    private Long canvasAssignmentId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
-    @NotNull
     private Course course;
 
-    @NotBlank
-    @Column(nullable=false, columnDefinition="TEXT")
-    private String assignmentType;
-
-    @NotNull
-    @Future(message = "Due date must be in the future")
-    @Column(nullable=false)
+    @Column(name = "due_at")
     private LocalDateTime dueDate;
 
     @Column(nullable=false, updatable=false)
@@ -65,38 +68,35 @@ public class Assignments {
     @Column(nullable=false)
     private Boolean completed;
 
-    @Min(0)
-    @Column(nullable=false)
-    private Double overallGradeWeight;
+    @Column(precision = 5, scale = 2)
+    private Double pointsWorth;
+
+    @Column(precision = 5, scale = 2)
+    private Double grade;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable=false)
+    @Column(nullable = false, columnDefinition="TEXT")
     private Priority priority;
 
-    @Column(nullable=false, columnDefinition="TEXT")
+    @Column(nullable = false, columnDefinition="TEXT")
     private String url;
 
-    @Column(nullable=false)
-    private Boolean reminderSent;
+    @Column(nullable = false)
+    private Boolean reminderSent = false;
 
-    @Column()
+    @Column(name = "blocked_until")
     private LocalDateTime blockedUntil;
 
     @Column(nullable=false)
     private Boolean blockingEnabled;
 
-    @Column
-    @Min(0)
-    private Double grade;
+    @Column(nullable = false)
+    private LocalDateTime lastSynced;
 
-    @PrePersist
-    protected void onCreate() {
-        createdDate = LocalDateTime.now();
-        if (completed == null) completed = false;
-        if (reminderSent == null) reminderSent = false;
-        if (blockingEnabled == null) blockingEnabled = false;
-    }
+    @Column(nullable = false)
+    private String submissionType;
 
+    @Column(name = "completed_at")
+    private LocalDateTime completedAt;
 
-    
 }

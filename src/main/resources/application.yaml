@@ -1,20 +1,33 @@
 server:
-  port: ${SERVER_PORT}
-  error:
-    include-message: always
+  port: 8080
 
 spring:
+  application:
+    name: Assignment-Alert
+
   datasource:
-    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/assignment_alert
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
+    show-sql: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-    show-sql: true
-  application:
-    name: Assignment_Alert
+
+aws:
+  region: ${AWS_REGION}
+  # No credentials needed on EC2 - IAM role handles it!
+
+# Logging
+logging:
+  level:
+    root: INFO
+    com.assignment_alert: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
