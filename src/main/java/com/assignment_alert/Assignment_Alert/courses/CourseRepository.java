@@ -8,7 +8,7 @@ import com.assignment_alert.Assignment_Alert.user.User;
 
 public interface CourseRepository extends JpaRepository<Course, Long> {
 
-    Optional<Course> findByCanvasIdAndUser(Long courseId, User user);
+    Optional<Course> findByCanvasCourseIdAndUser(Long canvasCourseId, User user);
    
 
     

@@ -3,6 +3,7 @@ package com.assignment_alert.Assignment_Alert.canvas;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -14,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import com.assignment_alert.Assignment_Alert.canvas.dtos.CanvasAssignmentDTO;
 import com.assignment_alert.Assignment_Alert.canvas.dtos.CanvasCourseDTO;
 import com.assignment_alert.Assignment_Alert.canvas.dtos.CanvasUserDTO;
+import com.assignment_alert.Assignment_Alert.config.RestTemplateConfig;
 import com.assignment_alert.Assignment_Alert.exceptions.CanvasApiException;
 import com.assignment_alert.Assignment_Alert.exceptions.InvalidTokenException;
 
@@ -39,25 +41,25 @@ public class CanvasApiClient {
 
             return response.getBody();
 
-        } catch(HttpClientErrorException.Unauthorized e) {
+        } catch (HttpClientErrorException.Unauthorized e) {
             throw new InvalidTokenException("Invalid Canvas access token");
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new CanvasApiException("Failed to connect to Canvas: " + e.getMessage());
         }
-        
+
     }
 
     public List<CanvasCourseDTO> getCourses(String schoolDomain, String token) {
-            String fullUrl = schoolDomain + "/api/v1/courses";
+        String fullUrl = schoolDomain + "/api/v1/courses";
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth(token);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
 
-            HttpEntity<String> entity = new HttpEntity<>(headers);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
 
-            ResponseEntity<CanvasCourseDTO[]> response = restTemplate.exchange(fullUrl, HttpMethod.GET, entity, CanvasCourseDTO[].class);
+        ResponseEntity<CanvasCourseDTO[]> response = restTemplate.exchange(fullUrl, HttpMethod.GET, entity, CanvasCourseDTO[].class);
 
-            return Arrays.asList(response.getBody());
+        return Arrays.asList(response.getBody());
     }
 
     public List<CanvasAssignmentDTO> getAssignments(String schoolDomain, String token, Long canvasCourseId) {
@@ -72,5 +74,5 @@ public class CanvasApiClient {
 
         return Arrays.asList(response.getBody());
     }
-    
+
 }

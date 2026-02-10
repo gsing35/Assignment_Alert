@@ -1,9 +1,7 @@
 package com.assignment_alert.Assignment_Alert.courses;
 
-import org.springframework.aot.hint.annotation.Reflective;
 import org.springframework.stereotype.Service;
 
-import com.assignment_alert.Assignment_Alert.assignments.Assignment;
 import com.assignment_alert.Assignment_Alert.canvas.CanvasSyncService;
 import com.assignment_alert.Assignment_Alert.exceptions.CourseNotFoundException;
 import com.assignment_alert.Assignment_Alert.user.User;
@@ -19,13 +17,13 @@ public class CourseService {
     private final CanvasSyncService canvasSyncService;
 
     public CourseResponseDTO getCourseByIdAndUser(Long canvasCourseId, User user) {
-        Course course = courseRepo.findByCanvasIdAndUser(canvasCourseId, user).orElseThrow(() -> new CourseNotFoundException("Course Not Found"));
+        Course course = courseRepo.findByCanvasCourseIdAndUser(canvasCourseId, user).orElseThrow(() -> new CourseNotFoundException("Course Not Found"));
         return CourseResponseDTO.from(course);
     }
 
     @Transactional
     public CourseResponseDTO updateAssignments(Long canvasCourseId, User user) {
-        Course course = courseRepo.findByCanvasIdAndUser(canvasCourseId, user).orElseThrow(() -> new CourseNotFoundException("Course Not Found"));
+        Course course = courseRepo.findByCanvasCourseIdAndUser(canvasCourseId, user).orElseThrow(() -> new CourseNotFoundException("Course Not Found"));
         canvasSyncService.syncForCourse(course, user);
 
         return CourseResponseDTO.from(course);

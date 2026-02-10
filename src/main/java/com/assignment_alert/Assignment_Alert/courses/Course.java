@@ -1,6 +1,5 @@
 package com.assignment_alert.Assignment_Alert.courses;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +19,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

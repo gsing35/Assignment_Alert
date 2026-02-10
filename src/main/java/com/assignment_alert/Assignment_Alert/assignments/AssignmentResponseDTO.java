@@ -18,13 +18,12 @@ public record AssignmentResponseDTO(
         String url,
         Boolean blockingEnabled,
         Long hoursUntilDue
-
-) {
+        ) {
 
     public static AssignmentResponseDTO from(Assignment assignment) {
         long hoursUntilDue = 0;
-        if (assignment.getDueDate() != null) {
-            hoursUntilDue = Duration.between(LocalDateTime.now(), assignment.getDueDate()).toHours();
+        if (assignment.getDueAt() != null) {
+            hoursUntilDue = Duration.between(LocalDateTime.now(), assignment.getDueAt()).toHours();
         }
 
         return new AssignmentResponseDTO(
@@ -33,7 +32,7 @@ public record AssignmentResponseDTO(
                 assignment.getCanvasAssignmentId(),
                 assignment.getCourse().getCourseName(),
                 assignment.getCourse().getCanvasCourseId(),
-                assignment.getDueDate(),
+                assignment.getDueAt(),
                 assignment.getCreatedDate(),
                 assignment.getCompleted(),
                 assignment.getPointsWorth(),
