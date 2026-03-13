@@ -26,24 +26,24 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Table(name="courses", uniqueConstraints={
-    @UniqueConstraint(name="unique_course_url", columnNames="url"),
-    @UniqueConstraint(name="unique_course_id", columnNames="courseId")
-    
+@Table(name = "courses", uniqueConstraints = {
+    @UniqueConstraint(name = "unique_course_url", columnNames = "url"),
+    @UniqueConstraint(name = "unique_course_id", columnNames = "courseId")
+
 })
 @Entity
 public class Course {
-    
+
     @Id
-    @SequenceGenerator(name="course_id_seq", sequenceName="course_id_seq", allocationSize=1)
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="course_id_seq")
-    @Column(nullable=false)
+    @SequenceGenerator(name = "course_id_seq", sequenceName = "course_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "course_id_seq")
+    @Column(nullable = false)
     private Long courseId;
 
-    @Column(nullable=false, columnDefinition="TEXT")
+    @Column(columnDefinition = "TEXT")
     private String courseName;
 
-    @Column(nullable=false)
+    @Column(nullable = false)
     private Long canvasCourseId;
 
     // Each user will get its own copy of coures with own copy of assignments
@@ -51,9 +51,10 @@ public class Course {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable=false)
+    @Column(nullable = false)
     private String url;
 
-    @OneToMany(mappedBy="course", cascade=CascadeType.ALL, orphanRemoval=true)
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Assignment> assignments = new ArrayList<>();
+
 }

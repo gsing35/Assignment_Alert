@@ -22,37 +22,35 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name="users", uniqueConstraints={
-    @UniqueConstraint(name="aws_arn", columnNames="aws_secret_arn"),
-    @UniqueConstraint(name="unique_canvas_id", columnNames="canvas_id"),
-    @UniqueConstraint(name="unique_email", columnNames="email")
+@Table(name = "users", uniqueConstraints = {
+    @UniqueConstraint(name = "unique_canvas_id", columnNames = "canvas_id"),
+    @UniqueConstraint(name = "unique_email", columnNames = "email")
 })
 @Entity
 public class User {
-    
+
     @Id
-    @SequenceGenerator(name="user_id_seq", sequenceName="user_id_seq", allocationSize=1)
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="user_id_seq")
-    @Column(nullable=false, updatable=false)
+    @SequenceGenerator(name = "user_id_seq", sequenceName = "user_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_seq")
+    @Column(nullable = false, updatable = false)
     private Long userId;
 
-    @Column(nullable=false, columnDefinition="TEXT")
+    @Column(columnDefinition = "TEXT")
     private String schoolDomain;
 
-    @Column(nullable=false, columnDefinition="TEXT")
+    @Column(columnDefinition = "TEXT")
     private String awsSecretArn;
 
-    @Column(nullable=false, updatable=false)
+    @Column(nullable = false, updatable = false)
     private Long canvasId;
 
     @Column
     private String name;
 
-    @OneToMany(mappedBy="user", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Course> courses = new ArrayList<>();
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String email;
-    
 
 }

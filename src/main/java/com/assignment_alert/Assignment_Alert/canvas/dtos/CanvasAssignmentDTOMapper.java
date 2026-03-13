@@ -37,8 +37,8 @@ public class CanvasAssignmentDTOMapper {
             assignment.setCompleted(assignmentDto.completed());
         }
 
-        if (assignmentDto.submittedAt() != null) {
-            assignment.setCompletedAt(assignmentDto.submittedAt());
+        if (assignmentDto.submission() != null && assignmentDto.submission().submittedAt() != null) {
+            assignment.setCompletedAt(assignmentDto.submission().submittedAt());
         }
 
         if (assignmentDto.submissionTypes() != null && !assignmentDto.submissionTypes().isEmpty()) {
@@ -49,8 +49,8 @@ public class CanvasAssignmentDTOMapper {
             assignment.setPointsWorth(assignmentDto.pointsPossible());
         }
 
-        if (assignmentDto.submission() != null && assignment.getPointsWorth() != null && assignment.getPointsWorth() > 0) {
-            double score = Double.parseDouble(assignmentDto.submission().get(3));
+        if (assignmentDto.submission() != null && assignment.getPointsWorth() != null && assignment.getPointsWorth() > 0 && assignmentDto.submission().score() != null) {
+            double score = assignmentDto.submission().score();
             assignment.setGrade(score / assignment.getPointsWorth() * 100);
         }
 

@@ -1,12 +1,8 @@
 package com.assignment_alert.Assignment_Alert.canvas;
 
-import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 
 import com.assignment_alert.Assignment_Alert.aws.AwsSecretsManagerService;
-import com.assignment_alert.Assignment_Alert.canvas.dtos.CanvasAssignmentDTOMapper;
-import com.assignment_alert.Assignment_Alert.canvas.dtos.CanvasCourseDTOMapper;
 import com.assignment_alert.Assignment_Alert.canvas.dtos.CanvasUserDTO;
 import com.assignment_alert.Assignment_Alert.canvas.dtos.CanvasUserDTOMapper;
 import com.assignment_alert.Assignment_Alert.user.User;
@@ -44,11 +40,9 @@ public class CanvasAuthenticationService {
     }
 
     //todo make a new method to connect to canvas with an existing user and a new token 
-
     public User dissconnectCanvasAccount() {
         //Not needed yet
         return null;
     }
 
-    
 }

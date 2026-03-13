@@ -19,11 +19,9 @@ public record CanvasAssignmentDTO(
         Double pointsPossible,
         @JsonProperty("has_submitted_submissions")
         Boolean completed,
-        List<String> submission,
+        CanvasAssignmentSubmissionDTO submission,
         @JsonProperty("submission_types")
-        List<String> submissionTypes,
-        @JsonProperty("submitted_at")
-        LocalDateTime submittedAt
+        List<String> submissionTypes
         ) {
 
 }
