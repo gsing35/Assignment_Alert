@@ -51,7 +51,7 @@ public class AssignmentsController {
         return ResponseEntity.ok(assignmentService.updateAssignment(assignmentId, updateRequest));
     }
 
-    @PutMapping("/{assignmentId}/completed")
+    @PutMapping("/{assignmentId}/{completed}")
     public ResponseEntity<AssignmentResponseDTO> markAsCompleted(@PathVariable Long assignmentId, @PathVariable Boolean completed) {
         return ResponseEntity.ok(assignmentService.markAsCompleted(assignmentId, completed));
     }
