@@ -1,10 +1,9 @@
 {
     "manifest_version": 3,
     "name": "Assignment Alert",
-    "version": "1.0.0",
+    "version": "0.0.1",
     "action": {
-        "default_popup": "index.html",
-        "default_icon": "icon.png"
+        "default_popup": "index.html"
     },
     "permissions": [
         "storage",
@@ -13,7 +12,7 @@
     ],
     "host_permissions": [
         "http://localhost:8080/*",
-        "https://your-api-domain.com/*"
+        "http://18.224.39.204:8080/*"
     ],
     "background": {
         "service_worker": "src/background.ts",
