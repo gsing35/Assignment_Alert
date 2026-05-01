@@ -10,4 +10,6 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     Optional<Course> findByCanvasCourseIdAndUser(Long canvasCourseId, User user);
 
+    Optional<Course> findByCourseIdAndUser(Long courseId, User user);
+
 }

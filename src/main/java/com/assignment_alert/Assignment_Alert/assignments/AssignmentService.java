@@ -45,8 +45,13 @@ public class AssignmentService {
         return AssignmentResponseDTO.from(assignment);
     }
 
-    public AssignmentResponseDTO getAssignment(Long canvasAssignmentId) {
+    public AssignmentResponseDTO getAssignmentByCanvasId(Long canvasAssignmentId) {
         Assignment assignment = assignmentRepo.findByCanvasAssignmentId(canvasAssignmentId).orElseThrow(() -> new AssignmentNotFoundException("Assignment Not Found"));
+        return AssignmentResponseDTO.from(assignment);
+    }
+
+    public AssignmentResponseDTO getAssignment(Long assignmentId) {
+        Assignment assignment = assignmentRepo.findById(assignmentId).orElseThrow(() -> new AssignmentNotFoundException("Assignment Not Found"));
         return AssignmentResponseDTO.from(assignment);
     }
 
@@ -92,15 +97,16 @@ public class AssignmentService {
     }
 
     @Transactional
-    public AssignmentResponseDTO markAsCompleted(Long id, Boolean completed) {
-        Assignment assignment = assignmentRepo.findById(id).orElseThrow(() -> new AssignmentNotFoundException("Assignment Not Found"));
+    public AssignmentResponseDTO markAsCompleted(Long assignmentId, Boolean completed) {
+        Assignment assignment = assignmentRepo.findById(assignmentId).orElseThrow(() -> new AssignmentNotFoundException("Assignment Not Found"));
         assignment.setCompleted(completed);
 
         if(completed) {
             assignment.setCompletedAt(LocalDateTime.now());
         }
         else {
-            assignment.setCompleted(null);
+            assignment.setCompleted(false);
+            assignment.setCompletedAt(null);
         }
 
         Assignment completedAssignment = assignmentRepo.save(assignment);

@@ -3,6 +3,7 @@ package com.assignment_alert.Assignment_Alert.assignments;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/assignments")
 @RequiredArgsConstructor
+@CrossOrigin
 public class AssignmentsController {
 
     private final AssignmentService assignmentService;
@@ -51,8 +53,8 @@ public class AssignmentsController {
         return ResponseEntity.ok(assignmentService.updateAssignment(assignmentId, updateRequest));
     }
 
-    @PutMapping("/{assignmentId}/{completed}")
-    public ResponseEntity<AssignmentResponseDTO> markAsCompleted(@PathVariable Long assignmentId, @PathVariable Boolean completed) {
+    @PutMapping("/{assignmentId}/completed")
+    public ResponseEntity<AssignmentResponseDTO> markAsCompleted(@PathVariable Long assignmentId, @RequestParam Boolean completed) {
         return ResponseEntity.ok(assignmentService.markAsCompleted(assignmentId, completed));
     }
 

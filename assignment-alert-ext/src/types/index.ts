@@ -36,12 +36,14 @@ export interface CanvasConnectionDTO {
 export interface CourseResponseDTO {
     courseName: string
     canvasCourseId: number
+    courseId: number
     url: string
-    assignments: AssignmentResponseDTO[] //
+    assignments: AssignmentResponseDTO[] //This is a response so the assignments will also be a response
 }
 
 // What backend returns from /api/v1/users/{id}
 export interface UserResponseDTO {
+    userId: number
     name: string
     courses: CourseResponseDTO[]
     email: string

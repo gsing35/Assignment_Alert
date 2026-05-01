@@ -1,6 +1,7 @@
 package com.assignment_alert.Assignment_Alert.courses;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -15,19 +16,21 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/courses")
 @RestController
+@CrossOrigin
 public class CourseController {
 
     private final CourseService courseService;
 
-    @GetMapping("/{courseId}")
-    public ResponseEntity<CourseResponseDTO> getCourseByIdAndUser(@PathVariable Long courseId, @RequestBody User user) {
-        return ResponseEntity.ok(courseService.getCourseByIdAndUser(courseId, user));
+    @GetMapping("/{courseId}/users/{userId}")
+    public ResponseEntity<CourseResponseDTO> getCourseByIdAndUser(@PathVariable Long courseId, @PathVariable Long userId) {
+        return ResponseEntity.ok(courseService.getCourseByIdAndUser(courseId, userId));
     }
 
-    @PutMapping("/{courseId}")
-    public ResponseEntity<CourseResponseDTO> updateAssignments(@PathVariable Long courseId, @RequestBody User user ) {
-        return ResponseEntity.ok(courseService.updateAssignments(courseId, user));
+    @PutMapping("/{courseId}/users/{userId}")
+    public ResponseEntity<CourseResponseDTO> updateAssignments(@PathVariable Long courseId, @PathVariable Long userId ) {
+        return ResponseEntity.ok(courseService.updateAssignments(courseId, userId));
     }
 
     
 }   
+//225702
