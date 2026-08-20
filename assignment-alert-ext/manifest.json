@@ -12,7 +12,7 @@
     ],
     "host_permissions": [
         "http://localhost:8080/*",
-        "http://18.224.39.204:8080/*"
+        "http://44.200.230.77:8080/*"
     ],
     "background": {
         "service_worker": "src/background.ts",
