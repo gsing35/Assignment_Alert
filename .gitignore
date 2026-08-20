@@ -32,3 +32,4 @@ build/
 
 ### VS Code ###
 .vscode/
+assignment-alert-ext/src/api/apiTests.ts
