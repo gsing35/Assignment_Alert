@@ -23,24 +23,24 @@ public class AssignmentsController {
     private final AssignmentService assignmentService;
 
     @GetMapping
-    public ResponseEntity<List<AssignmentResponseDTO>> getAssignments(@RequestParam(required = false) Long courseId, @RequestParam(required = false) String filter) {
+    public ResponseEntity<List<AssignmentResponseDTO>> getAssignments(@RequestParam(required = false) Long courseId, @RequestParam(required = false) String filter, @RequestParam Long userId) {
         if(courseId != null) {
             return ResponseEntity.ok(assignmentService.getAssignmentsByCourse(courseId));
         }
 
         if(filter.equals("upcoming")) {
-            return ResponseEntity.ok(assignmentService.getUpcomingAssignments());
+            return ResponseEntity.ok(assignmentService.getUpcomingAssignments(userId));
         }
 
         if(filter.equals("incomplete")) {
-            return ResponseEntity.ok(assignmentService.getIncompleteAssignments());
+            return ResponseEntity.ok(assignmentService.getIncompleteAssignments(userId));
         }
 
         if(filter.equals("blocking")) {
-            return ResponseEntity.ok(assignmentService.getActiveBlockingAssignments());
+            return ResponseEntity.ok(assignmentService.getActiveBlockingAssignments(userId));
         }
 
-        return ResponseEntity.ok(assignmentService.getUpcomingAssignments());
+        return ResponseEntity.ok(assignmentService.getUpcomingAssignments(userId));
     }
 
     @GetMapping("/{assignmentId}")

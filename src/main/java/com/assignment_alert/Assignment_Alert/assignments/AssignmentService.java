@@ -4,19 +4,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.assignment_alert.Assignment_Alert.courses.CourseRepository;
-import com.assignment_alert.Assignment_Alert.canvas.CanvasSyncService;
-import com.assignment_alert.Assignment_Alert.courses.Course;
-import com.assignment_alert.Assignment_Alert.exceptions.*;
-
-import jakarta.transaction.Transactional;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.assignment_alert.Assignment_Alert.canvas.CanvasSyncService;
+import com.assignment_alert.Assignment_Alert.exceptions.AssignmentNotFoundException;
+import com.assignment_alert.Assignment_Alert.exceptions.UserNotFoundException;
+import com.assignment_alert.Assignment_Alert.user.User;
+import com.assignment_alert.Assignment_Alert.user.UserRepository;
+
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -25,9 +21,11 @@ public class AssignmentService {
 
     private final AssignmentRepository assignmentRepo;
     private final CanvasSyncService canvasSyncService;
+    private final UserRepository userRepo;
 
-    public List<AssignmentResponseDTO> getUpcomingAssignments() {
-            return assignmentRepo.findByDueAtAfterOrderByDueAtAsc(LocalDateTime.now())
+    public List<AssignmentResponseDTO> getUpcomingAssignments(Long userId) {
+            User user = userRepo.findByUserId(userId).orElseThrow(() -> new UserNotFoundException("User with id" + userId + " Not Found"));
+            return assignmentRepo.findByDueAtAfterAndCourse_UserOrderByDueAtAsc(LocalDateTime.now(), user)
             .stream()
             .map(AssignmentResponseDTO::from)
             .collect(Collectors.toList());
@@ -55,22 +53,25 @@ public class AssignmentService {
         return AssignmentResponseDTO.from(assignment);
     }
 
-    public List<AssignmentResponseDTO> getIncompleteAssignments() {
-        return assignmentRepo.findByCompletedFalseOrderByDueAtAsc()
+    public List<AssignmentResponseDTO> getIncompleteAssignments(Long userId) {
+        User user = userRepo.findByUserId(userId).orElseThrow(() -> new UserNotFoundException("User with id" + userId + " Not Found"));
+        return assignmentRepo.findByCompletedFalseAndCourse_UserOrderByDueAtAsc(user)
         .stream()
         .map(AssignmentResponseDTO::from)
         .collect(Collectors.toList());
     }
 
-    public List<AssignmentResponseDTO> getActiveBlockingAssignments() {
-        return assignmentRepo.findByBlockingEnabledTrueAndDueAtAfter(LocalDateTime.now())
+    public List<AssignmentResponseDTO> getActiveBlockingAssignments(Long userId) {
+        User user = userRepo.findByUserId(userId).orElseThrow(() -> new UserNotFoundException("User with id" + userId + " Not Found"));
+        return assignmentRepo.findByBlockingEnabledTrueAndDueAtAfterAndCourse_User(LocalDateTime.now(), user)
         .stream()
         .map(AssignmentResponseDTO::from)
         .collect(Collectors.toList());
     }
 
-    public List<AssignmentResponseDTO> getAssignmentsByPriority(Priority priority) {
-        return assignmentRepo.findByPriorityOrderByDueAtAsc(priority)
+    public List<AssignmentResponseDTO> getAssignmentsByPriority(Priority priority, Long userId) {
+        User user = userRepo.findByUserId(userId).orElseThrow(() -> new UserNotFoundException("User with id" + userId + " Not Found"));
+        return assignmentRepo.findByPriorityAndCourse_UserOrderByDueAtAsc(priority, user)
         .stream()
         .map(AssignmentResponseDTO::from)
         .collect(Collectors.toList());

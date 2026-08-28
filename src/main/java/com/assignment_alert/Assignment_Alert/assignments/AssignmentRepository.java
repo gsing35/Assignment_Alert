@@ -7,19 +7,21 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import com.assignment_alert.Assignment_Alert.user.User;
+
 public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
 
     public Optional<Assignment> findByCanvasAssignmentId(Long canvasAssignmentId);
 
     public List<Assignment> findByCanvasCourseIdOrderByDueAtAsc(Long courseId);
 
-    public List<Assignment> findByDueAtAfterOrderByDueAtAsc(LocalDateTime now);
+    public List<Assignment> findByDueAtAfterAndCourse_UserOrderByDueAtAsc(LocalDateTime now, User user);
 
-    public List<Assignment> findByCompletedFalseOrderByDueAtAsc();
+    public List<Assignment> findByCompletedFalseAndCourse_UserOrderByDueAtAsc(User user);
 
-    public List<Assignment> findByBlockingEnabledTrueAndDueAtAfter(LocalDateTime now);
+    public List<Assignment> findByBlockingEnabledTrueAndDueAtAfterAndCourse_User(LocalDateTime now, User user);
 
-    public List<Assignment> findByPriorityOrderByDueAtAsc(Priority priority);
+    public List<Assignment> findByPriorityAndCourse_UserOrderByDueAtAsc(Priority priority, User user);
 
     // Might need to change this
     @Query("SELECT a FROM Assignment a WHERE a.reminderSent = false AND a.dueAt < :deadline AND a.completed = false")
