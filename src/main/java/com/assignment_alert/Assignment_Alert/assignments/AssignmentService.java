@@ -31,8 +31,9 @@ public class AssignmentService {
             .collect(Collectors.toList());
     }
 
-    public List<AssignmentResponseDTO> getAssignmentsByCourse(Long courseId) {
-        return assignmentRepo.findByCanvasCourseIdOrderByDueAtAsc(courseId)
+    public List<AssignmentResponseDTO> getAssignmentsByCourse(Long courseId, Long userId) {
+        User user = userRepo.findByUserId(userId).orElseThrow(() -> new UserNotFoundException("User with id" + userId + " Not Found"));
+        return assignmentRepo.findByCanvasCourseIdAndCourse_UserOrderByDueAtAsc(courseId, user)
         .stream()
         .map(AssignmentResponseDTO::from)
         .collect(Collectors.toList());

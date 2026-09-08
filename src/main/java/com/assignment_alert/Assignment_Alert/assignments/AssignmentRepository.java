@@ -13,7 +13,7 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
 
     public Optional<Assignment> findByCanvasAssignmentId(Long canvasAssignmentId);
 
-    public List<Assignment> findByCanvasCourseIdOrderByDueAtAsc(Long courseId);
+    public List<Assignment> findByCanvasCourseIdAndCourse_UserOrderByDueAtAsc(Long courseId, User user);
 
     public List<Assignment> findByDueAtAfterAndCourse_UserOrderByDueAtAsc(LocalDateTime now, User user);
 
