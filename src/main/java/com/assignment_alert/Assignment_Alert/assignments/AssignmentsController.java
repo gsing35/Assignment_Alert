@@ -23,9 +23,13 @@ public class AssignmentsController {
     private final AssignmentService assignmentService;
 
     @GetMapping
-    public ResponseEntity<List<AssignmentResponseDTO>> getAssignments(@RequestParam(required = false) Long courseId, @RequestParam(required = false) String filter, @RequestParam Long userId) {
+    public ResponseEntity<List<AssignmentResponseDTO>> getAssignments(@RequestParam(required = false) Long courseId, @RequestParam(required = false) String filter, @RequestParam(required = false) Priority priority, @RequestParam Long userId) {
         if(courseId != null) {
             return ResponseEntity.ok(assignmentService.getAssignmentsByCourse(courseId, userId));
+        }
+
+        if(priority != null) {
+            return ResponseEntity.ok(assignmentService.getAssignmentsByPriority(priority, userId));
         }
 
         String normalizedFilter = (filter == null) ? "upcoming" : filter;
@@ -44,18 +48,18 @@ public class AssignmentsController {
     }
 
     @GetMapping("/{assignmentId}")
-    public ResponseEntity<AssignmentResponseDTO> getAssignment(@PathVariable Long assignmentId) {
-        return ResponseEntity.ok(assignmentService.getAssignment(assignmentId));
+    public ResponseEntity<AssignmentResponseDTO> getAssignment(@PathVariable Long assignmentId, @RequestParam Long userId) {
+        return ResponseEntity.ok(assignmentService.getAssignment(assignmentId, userId));
     }
 
     @PutMapping("/{assignmentId}")
-    public ResponseEntity<AssignmentResponseDTO> updateAssignment(@PathVariable Long assignmentId, @RequestBody AssignmentUpdateRequest updateRequest) {
-        return ResponseEntity.ok(assignmentService.updateAssignment(assignmentId, updateRequest));
+    public ResponseEntity<AssignmentResponseDTO> updateAssignment(@PathVariable Long assignmentId, @RequestBody AssignmentUpdateRequest updateRequest, @RequestParam Long userId) {
+        return ResponseEntity.ok(assignmentService.updateAssignment(assignmentId, updateRequest, userId));
     }
 
     @PutMapping("/{assignmentId}/completed")
-    public ResponseEntity<AssignmentResponseDTO> markAsCompleted(@PathVariable Long assignmentId, @RequestParam Boolean completed) {
-        return ResponseEntity.ok(assignmentService.markAsCompleted(assignmentId, completed));
+    public ResponseEntity<AssignmentResponseDTO> markAsCompleted(@PathVariable Long assignmentId, @RequestParam Boolean completed, @RequestParam Long userId) {
+        return ResponseEntity.ok(assignmentService.markAsCompleted(assignmentId, completed, userId));
     }
 
 }

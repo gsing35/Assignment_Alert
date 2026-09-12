@@ -76,8 +76,10 @@ public class CanvasSyncService {
         List<CanvasAssignmentDTO> assignmentsDTOs = apiClient.getAssignments(schoolDomain, canvasToken, course.getCanvasCourseId());
 
         for (CanvasAssignmentDTO a : assignmentsDTOs) {
-            Assignment assignment = assignmentRepo.findByCanvasAssignmentId(a.id()).map(existing -> {
-                assignmentMapper.toEntity(a, existing.getCourse(), existing);
+            // Scoped to this course so the sync updates the copy belonging to the course being
+            // synced, rather than matching another user's copy of the same Canvas assignment.
+            Assignment assignment = assignmentRepo.findByCanvasAssignmentIdAndCourse(a.id(), course).map(existing -> {
+                assignmentMapper.toEntity(a, course, existing);
                 return existing;
             })
             .orElseGet(() -> assignmentMapper.toEntity(a, course, null));

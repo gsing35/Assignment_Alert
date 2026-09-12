@@ -22,3 +22,12 @@ export async function saveSession(session: CanvasSession): Promise<void> {
 export async function clearSession(): Promise<void> {
     await chrome.storage.local.remove(STORAGE_KEY)
 }
+
+// Return the userId of the logged-in Canvas user, or throw an error if no session is found.
+export async function requireUserId(): Promise<number> {
+    const session = await getStoredSession()
+    if (!session) {
+        throw new Error('No Canvas session found. Please log in.')
+    }
+    return session.userId
+}

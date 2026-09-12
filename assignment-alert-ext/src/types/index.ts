@@ -7,20 +7,21 @@ export type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'DONE';
 
 // What backend returns from /api/v1/assignments
 export interface AssignmentResponseDTO {
-    assigmentId: number
+    assignmentId: number
     assignmentName: string
     canvasAssignmentId: number
     courseName: string
     courseId: number
-    dueDate: string
+    dueDate: string | null
     createdDate: string
     completed: boolean | null // because they are nullable in the db
     pointsWorth: number | null
-    grade: number
+    grade: number | null
     priority: Priority
     url: string
     blockingEnabled: boolean
     hoursUntilDue: number
+    userId: number
 }
 
 // What backend returns from /api/v1/canvas/connect returns

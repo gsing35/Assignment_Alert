@@ -17,6 +17,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,6 +25,14 @@ import lombok.NoArgsConstructor;
 
 @Table(
         name = "assignments",
+        // Each user gets their own copy of a course and its assignments, so a Canvas assignment id
+        // is only unique within one course row - never globally across users.
+        uniqueConstraints = {
+            @UniqueConstraint(
+                name = "unique_canvas_assignment_per_course",
+                columnNames = {"canvas_assignment_id", "course_id"}
+            )
+        },
         indexes = {
             @Index(name = "canvas_assignment_id", columnList = "canvas_assignment_id"),
             @Index(name = "due_at", columnList = "due_at"),
@@ -46,7 +55,7 @@ public class Assignment {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String assignmentName;
 
-    @Column(name = "canvas_assignment_id", nullable = false, unique = true)
+    @Column(name = "canvas_assignment_id", nullable = false)
     private Long canvasAssignmentId;
 
     @ManyToOne(fetch = FetchType.LAZY)

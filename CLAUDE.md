@@ -40,7 +40,7 @@ PostgreSQL via Spring Data JPA/Hibernate, with `ddl-auto: update` (no Flyway/Liq
 
 All endpoints are under `/api/v1`. Each controller is annotated `@CrossOrigin` individually (allow-all origins) rather than using a central CORS configuration.
 
-- `AssignmentsController`: `GET /assignments?courseId=&filter=` (filter is one of `upcoming`|`incomplete`|`blocking`), `GET /assignments/{id}`, `PUT /assignments/{id}` (body: completed/priority/blockedUntil/blockingEnabled), `PUT /assignments/{id}/completed?completed=`
+- `AssignmentsController`: every endpoint takes a **required** `userId` query param and is scoped to that user's own assignments — reads go through `Course_User`, and the by-id endpoints resolve via `findByAssignmentIdAndCourse_User`, so another user's assignment 404s rather than leaking. `GET /assignments?userId=&courseId=&filter=&priority=` (`courseId` wins, then `priority`, then `filter`, which is one of `upcoming`|`incomplete`|`blocking` and defaults to `upcoming`), `GET /assignments/{id}?userId=`, `PUT /assignments/{id}?userId=` (body: completed/priority/blockedUntil/blockingEnabled), `PUT /assignments/{id}/completed?completed=&userId=`
 - `CourseController`: `GET /courses/{courseId}/users/{userId}`, `PUT /courses/{courseId}/users/{userId}` (triggers a Canvas re-sync for that course)
 - `UserController`: `GET /users/{userId}`
 - `CanvasController`: `POST /canvas/connect` (body: domain + Canvas access token; validates the token, stores it in Secrets Manager, creates/updates the User, triggers an initial full sync)
