@@ -5,6 +5,8 @@ import { saveSession } from '../lib/canvasSession'
 import type { CanvasSession } from '../lib/canvasSession'
 import './CanvasLoginView.css'
 
+// Props passed in from App.tsx. `onConnected` is called after a successful login
+// so App can switch from this login screen to the calendar screen.
 type CanvasLoginViewProps = {
     onConnected: (session: CanvasSession) => void
 }
@@ -20,22 +22,29 @@ function normalizeDomain(rawDomain: string): string {
 }
 
 function CanvasLoginView({ onConnected }: CanvasLoginViewProps) {
+    // ---- State ----
+    // What the user has typed into each input.
     const [domain, setDomain] = useState('')
     const [accessToken, setAccessToken] = useState('')
+    // True while the connect request is in progress; disables the form.
     const [loading, setLoading] = useState(false)
+    // Error message shown above the Connect button (e.g. invalid token).
     const [error, setError] = useState<string | null>(null)
 
+    // Runs when the form is submitted (Connect button or pressing Enter).
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault()
+        event.preventDefault() // stop the browser from reloading the popup
         setError(null)
         setLoading(true)
 
         try {
+            // POST /api/v1/canvas/connect: backend validates the token and syncs courses.
             const connection = await connectToCanvas({
                 domain: normalizeDomain(domain),
                 accessToken: accessToken.trim(),
             })
 
+            // Save who is logged in to chrome.storage so the popup remembers them next time.
             const session: CanvasSession = {
                 userId: connection.userId,
                 name: connection.name,
@@ -45,6 +54,7 @@ function CanvasLoginView({ onConnected }: CanvasLoginViewProps) {
             await saveSession(session)
             onConnected(session)
         } catch (err) {
+            // Backend or network error: show the message in the form.
             setError(err instanceof Error ? err.message : 'Failed to connect to Canvas.')
         } finally {
             setLoading(false)
@@ -52,6 +62,7 @@ function CanvasLoginView({ onConnected }: CanvasLoginViewProps) {
     }
 
     return (
+        // Outer wrapper; styled by .canvas-login in CanvasLoginView.css.
         <div className="canvas-login">
             <h1>Connect Canvas</h1>
             <p className="canvas-login-subtitle">
@@ -59,6 +70,7 @@ function CanvasLoginView({ onConnected }: CanvasLoginViewProps) {
             </p>
 
             <form onSubmit={handleSubmit}>
+                {/* School URL input. htmlFor links the label to the input's id. */}
                 <label htmlFor="domain">Institution URL</label>
                 <input
                     id="domain"
@@ -71,6 +83,7 @@ function CanvasLoginView({ onConnected }: CanvasLoginViewProps) {
                     required
                 />
 
+                {/* Token input. type="password" hides the characters as they're typed. */}
                 <label htmlFor="accessToken">Canvas Access Token</label>
                 <input
                     id="accessToken"
@@ -83,8 +96,10 @@ function CanvasLoginView({ onConnected }: CanvasLoginViewProps) {
                     required
                 />
 
+                {/* Only rendered when there's an error. */}
                 {error && <p className="canvas-login-error">{error}</p>}
 
+                {/* Button text switches while the request is running. */}
                 <button type="submit" disabled={loading}>
                     {loading ? 'Connecting…' : 'Connect'}
                 </button>

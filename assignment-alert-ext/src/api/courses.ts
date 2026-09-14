@@ -1,10 +1,10 @@
 import type { CourseResponseDTO } from "../types";
-import { handleResponse } from './apiUtil'
+import { fetchWithTimeout, handleResponse, SYNC_TIMEOUT_MS } from './apiUtil'
 
 const BASE_URL = import.meta.env.VITE_API_URL //?? 'http://localhost:8080'    // Default to localhost if env variable is not set
 
 export async function getCourseByIdAndUser(canvasCourseId: number, userId: number): Promise<CourseResponseDTO> {
-    const response = await fetch(`${BASE_URL}/api/v1/courses/${canvasCourseId}/users/${userId}`, {
+    const response = await fetchWithTimeout(`${BASE_URL}/api/v1/courses/${canvasCourseId}/users/${userId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -14,11 +14,11 @@ export async function getCourseByIdAndUser(canvasCourseId: number, userId: numbe
 }
 
 export async function updateAssignments(canvasCourseId: number, userId: number): Promise<CourseResponseDTO> {
-    const response = await fetch(`${BASE_URL}/api/v1/courses/${canvasCourseId}/users/${userId}`, {
+    const response = await fetchWithTimeout(`${BASE_URL}/api/v1/courses/${canvasCourseId}/users/${userId}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
         }
-    })  // wait for backend to response when fetching user info
+    }, SYNC_TIMEOUT_MS)  // triggers a Canvas re-sync for the course, which can take a while
     return handleResponse<CourseResponseDTO>(response)
 }

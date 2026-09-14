@@ -1,48 +1,62 @@
+/*
+  Styles for CanvasLoginView.tsx (the login screen).
+  Colors like var(--accent), var(--border), var(--text) are defined once in src/index.css
+  (with separate light and dark mode values). Change them there to recolor the whole extension.
+*/
+
+/* Outer wrapper around the whole login screen. padding = space inside the edges (top/bottom left/right). */
 .canvas-login {
     width: 100%;
     padding: 24px 20px;
-    box-sizing: border-box;
+    box-sizing: border-box; /* padding counts inside the width instead of making it wider */
     text-align: left;
 }
 
+/* "Connect Canvas" title. margin: top, left/right, bottom. */
 .canvas-login h1 {
     font-size: 22px;
     margin: 0 0 8px;
 }
 
+/* The explanation sentence under the title. */
 .canvas-login-subtitle {
     color: var(--text);
     font-size: 14px;
     margin: 0 0 20px;
 }
 
+/* Stacks the labels, inputs and button vertically with 6px between each. */
 .canvas-login form {
     display: flex;
     flex-direction: column;
     gap: 6px;
 }
 
+/* "Institution URL" / "Canvas Access Token" labels. */
 .canvas-login label {
     font-size: 13px;
     color: var(--text-h);
-    margin-top: 10px;
+    margin-top: 10px; /* extra space above each label to separate the field groups */
 }
 
+/* Both text inputs. */
 .canvas-login input {
     font: inherit;
     font-size: 14px;
-    padding: 8px 10px;
+    padding: 8px 10px; /* makes the input taller/wider inside its border */
     border-radius: 6px;
     border: 1px solid var(--border);
     background: var(--bg);
     color: var(--text-h);
 }
 
+/* Input appearance while the user is typing in it: accent-colored border instead of the browser outline. */
 .canvas-login input:focus {
     outline: none;
     border-color: var(--accent-border);
 }
 
+/* The Connect button. */
 .canvas-login button {
     margin-top: 16px;
     font: inherit;
@@ -55,11 +69,13 @@
     cursor: pointer;
 }
 
+/* Button appearance while connecting (faded, not clickable). */
 .canvas-login button:disabled {
     opacity: 0.6;
     cursor: default;
 }
 
+/* Red error message shown above the button. */
 .canvas-login-error {
     color: #e5484d;
     font-size: 13px;
