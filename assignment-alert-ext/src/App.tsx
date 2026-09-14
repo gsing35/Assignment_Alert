@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import CanvasLoginView from './components/CanvasLoginView'
+import UpcomingCalendar from './components/UpcomingCalendar'
 import { clearSession, getStoredSession } from './lib/canvasSession'
 import type { CanvasSession } from './lib/canvasSession'
 import './App.css'
@@ -30,10 +31,10 @@ function App() {
 
   return (
     <section id="connected">
-      <h1>Connected</h1>
-      <p>
+      <p className="session-info">
         Signed in as <strong>{session.name}</strong> ({session.schoolDomain})
       </p>
+      <UpcomingCalendar />
       <button className="counter" onClick={handleDisconnect}>
         Disconnect
       </button>

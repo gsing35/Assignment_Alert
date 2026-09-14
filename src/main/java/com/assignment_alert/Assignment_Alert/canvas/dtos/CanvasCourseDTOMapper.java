@@ -25,7 +25,7 @@ public class CanvasCourseDTOMapper {
         course.setUrl("https://%s/courses/%d".formatted(schoolDomain, course.getCanvasCourseId()));
 
         if (course.getCanvasCourseId() != null) {
-            course.setAssignments(assignmentRepo.findByCanvasCourseIdOrderByDueAtAsc(course.getCanvasCourseId()));
+            course.setAssignments(assignmentRepo.findByCanvasCourseIdAndCourse_UserOrderByDueAtAsc(course.getCanvasCourseId(), user));
         }
         course.setUser(user);
 

@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 public record AssignmentResponseDTO(
-        Long assigmentId,
+        Long assignmentId,
         String assignmentName,
         Long canvasAssignmentId,
         String courseName,
@@ -17,7 +17,8 @@ public record AssignmentResponseDTO(
         Priority priority,
         String url,
         Boolean blockingEnabled,
-        Long hoursUntilDue
+        Long hoursUntilDue,
+        Long userId
         ) {
 
     public static AssignmentResponseDTO from(Assignment assignment) {
@@ -40,7 +41,9 @@ public record AssignmentResponseDTO(
                 assignment.getPriority(),
                 assignment.getUrl(),
                 assignment.getBlockingEnabled(),
-                hoursUntilDue);
+                hoursUntilDue,
+                assignment.getCourse().getUser().getUserId()
+        );
     }
 
 }
