@@ -30,4 +30,8 @@ export async function requireUserId(): Promise<number> {
         throw new Error('No Canvas session found. Please log in.')
     }
     return session.userId
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 0caf2d67402caab49382f79fc26da630d3bdbf72

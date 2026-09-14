@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.InstanceProfileCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 
@@ -18,7 +18,7 @@ public class AwsConfig {
     public SecretsManagerClient secretsManagerClient() {
         return SecretsManagerClient.builder()
                 .region(Region.of(awsRegion))
-                .credentialsProvider(DefaultCredentialsProvider.create())
+                .credentialsProvider(InstanceProfileCredentialsProvider.create())
                 .build();
     }
     //TODO implement aws secret manager, first just testing it with ur token in it, code will add new tokens
