@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import { getUpcomingAssignments } from '../api/assignments'
-import type { AssignmentResponseDTO } from '../types'
+import { getUserByUserId } from '../api/users'
+import { requireUserId } from '../lib/canvasSession'
+import { DEFAULT_FILTER, fetchAssignments, includesPastWork } from '../lib/assignmentFilter'
+import type { AssignmentResponseDTO, CourseResponseDTO } from '../types'
+import FilterOptions from './FilterOptions'
 import Spinner from './Spinner'
 import './UpcomingCalendar.css'
 
@@ -58,12 +61,18 @@ function UpcomingCalendar() {
 
     const [weekOffset, setWeekOffset] = useState(0)
 
+    // Which backend filter is active, e.g. "filter:upcoming" or "priority:HIGH".
+    const [filter, setFilter] = useState<string>(DEFAULT_FILTER)
+    // Courses for the filter panel's course dropdown.
+    const [courses, setCourses] = useState<CourseResponseDTO[]>([])
+
+    // Refetches whenever the filter changes, so each choice hits its own endpoint.
     useEffect(() => {
         let cancelled = false
         setLoading(true)
         setError(null)
 
-        getUpcomingAssignments()
+        fetchAssignments(filter)
             .then((data) => {
                 if (!cancelled) setAssignments(data)
             })
@@ -74,6 +83,25 @@ function UpcomingCalendar() {
             })
             .finally(() => {
                 if (!cancelled) setLoading(false)
+            })
+
+        return () => {
+            cancelled = true
+        }
+    }, [filter])
+
+    // Loaded once. A failure here only costs the course dropdown its options,
+    // so it is swallowed rather than replacing the whole calendar with an error.
+    useEffect(() => {
+        let cancelled = false
+
+        requireUserId()
+            .then((userId) => getUserByUserId(userId))
+            .then((user) => {
+                if (!cancelled) setCourses(user.courses ?? [])
+            })
+            .catch(() => {
+                if (!cancelled) setCourses([])
             })
 
         return () => {
@@ -135,16 +163,55 @@ function UpcomingCalendar() {
     const selectedAssignments = assignmentsByDay.get(selectedKey) ?? []
     const selectedDate = dateFromKey(selectedKey)
 
+    // Fetched items that are already overdue, and so sit before the earliest week
+    // the calendar can show. Only non-empty for filters that return past work.
+    const overdueCount = useMemo(
+        () =>
+            assignments.filter(
+                (a) => a.dueDate && startOfDay(new Date(a.dueDate)) < today
+            ).length,
+        [assignments, today]
+    )
+
+    // The filter box is rendered before these checks rather than after, so it
+    // stays on screen while a filter change is loading. Returning early here
+    // would unmount it and take away the control you just used.
+    const filterBox = <FilterOptions value={filter} onChange={setFilter} courses={courses} />
+
     if (loading) {
-        return <Spinner label="Loading calendar…" />
+        return (
+            <div className="upcoming-calendar">
+                {filterBox}
+                <Spinner label="Loading calendar…" />
+            </div>
+        )
     }
 
     if (error) {
-        return <p className="calendar-status calendar-error">{error}</p>
+        return (
+            <div className="upcoming-calendar">
+                {filterBox}
+                <p className="calendar-status calendar-error">{error}</p>
+            </div>
+        )
     }
 
     return (
         <div className="upcoming-calendar">
+            {filterBox}
+
+            {/*
+              These filters are not limited to future work, but the calendar only
+              travels forwards, so anything already overdue is in `assignments`
+              without being reachable. Saying so beats looking empty for no reason.
+            */}
+            {includesPastWork(filter) && overdueCount > 0 && (
+                <p className="calendar-notice">
+                    {overdueCount} overdue {overdueCount === 1 ? 'item is' : 'items are'} hidden —
+                    the calendar only shows today onwards.
+                </p>
+            )}
+
             <div className="calendar-nav">
                 <button
                     type="button"
@@ -182,6 +249,8 @@ function UpcomingCalendar() {
                     const isToday = key === todayKey
                     const isPast = date < today
                     const isSelected = key === selectedKey
+                    // Any HIGH-priority work that day earns a "!" on the badge.
+                    const hasUrgent = dayAssignments.some((a) => a.priority === 'HIGH')
 
                     return (
                         <button
@@ -201,7 +270,17 @@ function UpcomingCalendar() {
                             <span className="calendar-day-number">{date.getDate()}</span>
 
                             {dayAssignments.length > 0 && (
-                                <span className="calendar-day-count">{dayAssignments.length}</span>
+                                <span
+                                    className={[
+                                        'calendar-day-count',
+                                        hasUrgent && 'is-urgent',
+                                    ]
+                                        .filter(Boolean)
+                                        .join(' ')}
+                                >
+                                    {dayAssignments.length}
+                                    {hasUrgent && '!'}
+                                </span>
                             )}
                         </button>
                     )
@@ -223,7 +302,14 @@ function UpcomingCalendar() {
                     <ul className="calendar-assignment-list">
                         {selectedAssignments.map((assignment) => (
                             <li key={assignment.assignmentId}>
-                                <strong>{assignment.assignmentName}</strong>
+                                <a
+                                    className="calendar-assignment-link"
+                                    href={assignment.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    {assignment.assignmentName}
+                                </a>
                                 <span className="calendar-course">{assignment.courseName}</span>
                             </li>
                         ))}

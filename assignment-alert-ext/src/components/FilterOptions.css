@@ -1,0 +1,117 @@
+/*
+  The "Filter options" box, top-left of the calendar. Markup is in
+  FilterOptions.tsx.
+
+  Contents:
+    .filter-options ........... the anchor the dropdown positions against
+    .filter-options-toggle .... the always-visible button and its current value
+    .filter-options-panel ..... the dropdown, floated over the calendar
+    .filter-options-choice .... one radio row
+    .filter-options-select .... the course dropdown
+*/
+
+/*
+  position: relative makes this the anchor for the absolutely-positioned panel,
+  so the panel floats over the calendar instead of pushing the grid down.
+*/
+.filter-options {
+    position: relative;
+    align-self: flex-start;
+    text-align: left;
+    margin-bottom: 8px;
+}
+
+.filter-options-toggle {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    font: inherit;
+    font-size: var(--fs-label);
+    padding: 4px 10px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-h);
+    cursor: pointer;
+}
+
+.filter-options-toggle:hover {
+    border-color: var(--accent);
+}
+
+.filter-options-toggle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* The active filter's name, shown next to the label while collapsed. */
+.filter-options-current {
+    font-size: var(--fs-tiny);
+    color: var(--accent);
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/*
+  z-index only works here because the panel is taken out of normal flow. It sits
+  above the calendar rather than displacing it.
+*/
+.filter-options-panel {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: 10;
+    min-width: 200px;
+    max-height: 320px;
+    overflow-y: auto;
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg);
+    box-shadow: var(--shadow);
+}
+
+/* "Show" / "Priority" / "Course" headings inside the panel. */
+.filter-options-group-label {
+    font-size: var(--fs-tiny);
+    color: var(--text);
+    opacity: 0.7;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 8px 0 4px;
+}
+
+.filter-options-group-label:first-child {
+    margin-top: 0;
+}
+
+/* One radio row. */
+.filter-options-choice {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--fs-label);
+    color: var(--text-h);
+    padding: 3px 0;
+    cursor: pointer;
+}
+
+.filter-options-choice input {
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+.filter-options-select {
+    width: 100%;
+    font: inherit;
+    font-size: var(--fs-label);
+    padding: 5px 6px;
+    margin-top: 2px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text-h);
+    cursor: pointer;
+}
