@@ -1,4 +1,20 @@
+/*
+  Global styles for the whole popup.
+
+  Contents, in order:
+    :root ............................ design tokens — colors, --error, typefaces,
+                                       --fs-* font sizes, --radius corner rounding,
+                                       and the base font size
+    @media (prefers-color-scheme) .... the same color tokens, dark-mode values
+    #root ............................ the popup's own size. Chrome caps it at 800x600
+    body, h1, h2, p .................. element defaults
+    .spinner and friends ............. the loading animation, used by Spinner.tsx
+
+  Fully commented reference copy: ~/Documents/Assignment_Alert_frontend_notes/
+*/
+
 :root {
+
   --text: #f3f1f5;
   --text-h: #08060d;
   --bg: #fff;
@@ -11,12 +27,25 @@
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
+  --error: #e5484d;
+
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
+  --fs-title: 22px;
+  --fs-body: 20px;
+  --fs-label: 13px;
+  --fs-day: 15px;
+  --fs-tiny: 15px;
+  --fs-badge: 13px;
+
+  --radius: 6px;
+  --radius-sm: 4px;
+
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
+
   color-scheme: light dark;
   color: var(--text);
   background: var(--bg);
@@ -26,32 +55,30 @@
   -moz-osx-font-smoothing: grayscale;
 
   @media (max-width: 1024px) {
-    font-size: 16px;
+    font-size: 24px;
   }
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #6f6679;
-    --accent-bg: rgba(192, 132, 252, 0.15);
+    --text: #f1f3f8;
+    --text-h: #f1f3f8;
+    --bg: #121212;
+    --border: #6a6b6d;
+    --code-bg: #030303;
+    --accent: #9ca3af;
+    --accent-bg: rgba(156, 163, 175, 0.15);
     --accent-border: rgba(8, 8, 8, 0.5);
     --social-bg: rgba(47, 48, 58, 0.5);
     --shadow:
       rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
+    --error: #ff6369;
   }
 }
 
 #root {
-  width: 380px;
+  width: 800px;
   max-width: 100%;
   margin: 0 auto;
   text-align: center;
@@ -71,39 +98,52 @@ h2 {
   color: var(--text-h);
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
 p {
   margin: 0;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+@keyframes spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+.spinner {
+  --spinner-size: 18px;
+  --spinner-speed: 0.7s;
+
+  display: inline-block;
+  width: var(--spinner-size);
+  height: var(--spinner-size);
+  box-sizing: border-box;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spinner-rotate var(--spinner-speed) linear infinite;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.spinner.is-inline {
+  --spinner-size: 13px;
+  margin-right: 8px;
+}
+
+.spinner-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 0;
+}
+
+.spinner-label {
+  font-size: var(--fs-label);
+  color: var(--text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 3s;
+  }
 }
