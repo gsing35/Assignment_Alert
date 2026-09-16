@@ -11,8 +11,6 @@
 
   The header row and the grid share the same columns and gap — change one,
   change the other, or they stop lining up.
-
-  Fully commented reference copy: ~/Documents/Assignment_Alert_frontend_notes/
 */
 
 .upcoming-calendar {
@@ -143,14 +141,14 @@
     position: absolute;
     top: -4px;
     right: -4px;
-    min-width: 14px;
-    height: 14px;
+    min-width: 20px;
+    height: 20px;
     padding: 0 2px;
-    border-radius: 7px;
+    border-radius: 10px;
     background: var(--accent);
     color: white;
     font-size: var(--fs-badge);
-    line-height: 14px;
+    line-height: 20px;
     text-align: center;
 }
 
