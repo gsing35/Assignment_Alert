@@ -1,83 +1,82 @@
 /*
-  Styles for CanvasLoginView.tsx (the login screen).
-  Colors like var(--accent), var(--border), var(--text) are defined once in src/index.css
-  (with separate light and dark mode values). Change them there to recolor the whole extension.
+  The login screen. Markup and all wording are in CanvasLoginView.tsx.
+
+  Contents:
+    .canvas-login ............ outer wrapper, plus its h1 and subtitle
+    .canvas-login form ....... the labels and the two inputs
+    .canvas-login button ..... the Connect button, including its disabled state
+    .canvas-login-error ...... the red failure message
+
+  Fully commented reference copy: ~/Documents/Assignment_Alert_frontend_notes/
 */
 
-/* Outer wrapper around the whole login screen. padding = space inside the edges (top/bottom left/right). */
 .canvas-login {
     width: 100%;
     padding: 24px 20px;
-    box-sizing: border-box; /* padding counts inside the width instead of making it wider */
+    box-sizing: border-box;
     text-align: left;
 }
 
-/* "Connect Canvas" title. margin: top, left/right, bottom. */
 .canvas-login h1 {
-    font-size: 22px;
+    font-size: var(--fs-title);
     margin: 0 0 8px;
 }
 
-/* The explanation sentence under the title. */
 .canvas-login-subtitle {
     color: var(--text);
-    font-size: 14px;
+    font-size: var(--fs-body);
     margin: 0 0 20px;
 }
 
-/* Stacks the labels, inputs and button vertically with 6px between each. */
 .canvas-login form {
     display: flex;
     flex-direction: column;
     gap: 6px;
 }
 
-/* "Institution URL" / "Canvas Access Token" labels. */
 .canvas-login label {
-    font-size: 13px;
+    font-size: var(--fs-label);
     color: var(--text-h);
-    margin-top: 10px; /* extra space above each label to separate the field groups */
+    margin-top: 10px;
 }
 
-/* Both text inputs. */
 .canvas-login input {
     font: inherit;
-    font-size: 14px;
-    padding: 8px 10px; /* makes the input taller/wider inside its border */
-    border-radius: 6px;
+    font-size: var(--fs-body);
+    padding: 8px 10px;
+    border-radius: var(--radius);
     border: 1px solid var(--border);
     background: var(--bg);
     color: var(--text-h);
 }
 
-/* Input appearance while the user is typing in it: accent-colored border instead of the browser outline. */
 .canvas-login input:focus {
     outline: none;
     border-color: var(--accent-border);
 }
 
-/* The Connect button. */
 .canvas-login button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin-top: 16px;
     font: inherit;
-    font-size: 14px;
+    font-size: var(--fs-body);
     padding: 10px;
-    border-radius: 6px;
+    border-radius: var(--radius);
     border: 1px solid var(--accent-border);
     background: var(--accent-bg);
     color: var(--text-h);
     cursor: pointer;
 }
 
-/* Button appearance while connecting (faded, not clickable). */
 .canvas-login button:disabled {
     opacity: 0.6;
     cursor: default;
 }
 
-/* Red error message shown above the button. */
 .canvas-login-error {
-    color: #e5484d;
-    font-size: 13px;
+    color: var(--error);
+    font-size: var(--fs-label);
     margin: 4px 0 0;
 }

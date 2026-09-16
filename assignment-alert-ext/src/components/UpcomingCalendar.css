@@ -1,27 +1,75 @@
 /*
-  Styles for UpcomingCalendar.tsx.
-  Colors like var(--accent), var(--border), var(--text) are defined once in src/index.css
-  (with separate light and dark mode values). Change them there to recolor the whole extension.
+  The calendar. Markup and all wording are in UpcomingCalendar.tsx.
+
+  Contents:
+    .calendar-nav ............ the Back / date range / Next bar above the grid
+    .calendar-day-labels ..... the Su Mo Tu header row
+    .calendar-grid ........... the 7-column layout
+    .calendar-day ............ one day box, plus its is-today / is-past /
+                               is-selected / has-due states and the count badge
+    .calendar-day-detail ..... the panel underneath listing the selected day
+
+  The header row and the grid share the same columns and gap — change one,
+  change the other, or they stop lining up.
+
+  Fully commented reference copy: ~/Documents/Assignment_Alert_frontend_notes/
 */
 
-/* Outer wrapper around the entire calendar. */
 .upcoming-calendar {
     width: 100%;
-    text-align: left;
+    text-align: center;
 }
 
-/* "Loading calendar…" and error messages shown instead of the calendar. */
 .calendar-status {
     text-align: center;
     padding: 24px 0;
 }
 
-/* Error text color (red). */
 .calendar-error {
-    color: #e5484d;
+    color: var(--error);
 }
 
-/* Header row with Su Mo Tu ... Uses the same 7-column grid as the days so they line up. */
+.calendar-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.calendar-nav-button {
+    font: inherit;
+    font-size: var(--fs-label);
+    padding: 4px 10px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-h);
+    cursor: pointer;
+}
+
+.calendar-nav-button:hover {
+    border-color: var(--accent);
+}
+
+.calendar-nav-button:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+.calendar-nav-button:disabled:hover {
+    border-color: var(--border);
+}
+
+.calendar-nav-button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.calendar-nav-label {
+    font-size: var(--fs-label);
+    color: var(--text);
+}
+
 .calendar-day-labels {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -29,120 +77,103 @@
     margin-bottom: 4px;
 }
 
-/* Each weekday label. */
 .calendar-day-labels span {
     text-align: center;
-    font-size: 11px;
-    color: var(--text);
-    opacity: 0.7;
+    font-size: var(--fs-tiny);
+    color: #f1f3f8;
+    opacity: 1;
 }
 
-/*
-  The grid holding the day cells: 7 equal columns, 3px between cells.
-  max-height + overflow-y adds a scrollbar if there are more weeks than fit.
-*/
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 3px;
+    gap: 10px;
     max-height: 260px;
     overflow-y: auto;
 }
 
-/* A single day cell (it's a <button>, so the browser's default button look is reset here). */
 .calendar-day {
-    position: relative; /* lets the count badge position itself relative to this cell */
-    aspect-ratio: 1 / 1; /* keeps cells square; e.g. 1 / 1.4 makes them taller */
+    position: relative;
+    aspect-ratio: 1 / 1;
     border: 1px solid var(--border);
-    border-radius: 6px; /* corner roundness; 0 for sharp, 50% for circles */
+    border-radius: var(--radius);
     background: var(--bg);
     color: var(--text-h);
     font: inherit;
-    font-size: 12px; /* size of the day number */
+    font-size: var(--fs-day);
     cursor: pointer;
-    display: flex; /* centers the day number in the cell */
+    display: flex;
     align-items: center;
     justify-content: center;
     padding: 0;
 }
 
-/* Days before today are faded out. */
 .calendar-day.is-past {
     opacity: 0.45;
 }
 
-/* Today's cell gets an accent-colored border. */
 .calendar-day.is-today {
     border-color: var(--accent);
 }
 
-/* The clicked day gets a tinted background. */
 .calendar-day.is-selected {
     background: var(--accent-bg);
     border-color: var(--accent);
 }
 
-/* Days with at least one assignment due show a bold number. */
 .calendar-day.has-due {
     font-weight: 600;
 }
 
-/* The small round badge in the top-right corner showing how many assignments are due. */
 .calendar-day-count {
     position: absolute;
-    top: -4px; /* negative values push it slightly outside the cell's corner */
+    top: -4px;
     right: -4px;
     min-width: 14px;
     height: 14px;
     padding: 0 2px;
-    border-radius: 7px; /* half the height = pill/circle shape */
+    border-radius: 7px;
     background: var(--accent);
     color: white;
-    font-size: 9px;
-    line-height: 14px; /* matches height to vertically center the number */
+    font-size: var(--fs-badge);
+    line-height: 14px;
     text-align: center;
 }
 
-/* The section under the grid listing the selected day's assignments, with a divider line on top. */
 .calendar-day-detail {
     margin-top: 12px;
     border-top: 1px solid var(--border);
     padding-top: 8px;
 }
 
-/* The selected date heading, e.g. "Monday, Sep 14". */
 .calendar-day-detail h3 {
-    font-size: 14px;
+    font-size: var(--fs-body);
     margin: 0 0 6px;
 }
 
-/* "Nothing due." text. */
 .calendar-empty {
-    font-size: 13px;
+    font-size: 15;
     opacity: 0.7;
 }
 
-/* The list of assignments. Scrolls if taller than max-height. */
 .calendar-assignment-list {
-    list-style: none; /* removes bullet points */
+    list-style: none;
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 6px; /* space between assignments */
+    gap: 6px;
     max-height: 160px;
     overflow-y: auto;
 }
 
-/* One assignment: name on top, course name underneath. */
 .calendar-assignment-list li {
     display: flex;
     flex-direction: column;
-    font-size: 13px;
+    font-size: var(--fs-label);
 }
 
-/* The smaller, faded course name under each assignment. */
 .calendar-course {
-    font-size: 11px;
+    font-size: var(--fs-tiny);
     opacity: 0.7;
 }
