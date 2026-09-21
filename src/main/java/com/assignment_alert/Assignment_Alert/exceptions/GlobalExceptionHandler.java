@@ -7,16 +7,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AssignmentNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleAssignmentNotFound(AssignmentNotFoundException exception,
-                                                                 HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleAssignmentNotFound(AssignmentNotFoundException exception) {
         ErrorResponse errorResponse = new ErrorResponse(
-            request.getRequestURI(),
             exception.getMessage(),
             HttpStatus.INTERNAL_SERVER_ERROR.value(),
             LocalDateTime.now()
@@ -26,10 +22,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(CourseNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleCourseNotFound(CourseNotFoundException exception,
-                                                                 HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleCourseNotFound(CourseNotFoundException exception) {
         ErrorResponse errorResponse = new ErrorResponse(
-            request.getRequestURI(),
             exception.getMessage(),
             HttpStatus.INTERNAL_SERVER_ERROR.value(),
             LocalDateTime.now()
@@ -39,10 +33,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DuplicateAssignmentException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicateAssignmentFound(DuplicateAssignmentException exception,
-                                                                 HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleDuplicateAssignmentFound(DuplicateAssignmentException exception) {
         ErrorResponse errorResponse = new ErrorResponse(
-            request.getRequestURI(),
             exception.getMessage(),
             HttpStatus.INTERNAL_SERVER_ERROR.value(),
             LocalDateTime.now()
@@ -52,10 +44,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DuplicateCourseException.class)
-    public ResponseEntity<ErrorResponse> hanldeDuplicateCourseFound(DuplicateCourseException exception,
-                                                                 HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> hanldeDuplicateCourseFound(DuplicateCourseException exception) {
         ErrorResponse errorResponse = new ErrorResponse(
-            request.getRequestURI(),
             exception.getMessage(),
             HttpStatus.INTERNAL_SERVER_ERROR.value(),
             LocalDateTime.now()
@@ -65,10 +55,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RequestValidationException.class)
-    public ResponseEntity<ErrorResponse> handleRequestValidation(RequestValidationException exception,
-                                                                 HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleRequestValidation(RequestValidationException exception) {
         ErrorResponse errorResponse = new ErrorResponse(
-            request.getRequestURI(),
             exception.getMessage(),
             HttpStatus.INTERNAL_SERVER_ERROR.value(),
             LocalDateTime.now()
@@ -78,10 +66,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidTokenException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidToken(InvalidTokenException exception,
-                                                            HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleInvalidToken(InvalidTokenException exception) {
         ErrorResponse errorResponse = new ErrorResponse(
-            request.getRequestURI(),
             exception.getMessage(),
             HttpStatus.INTERNAL_SERVER_ERROR.value(),
             LocalDateTime.now()
@@ -91,10 +77,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(CanvasApiException.class)
-    public ResponseEntity<ErrorResponse> handleCanvasApi(CanvasApiException exception,
-                                                         HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleCanvasApi(CanvasApiException exception) {
         ErrorResponse errorResponse = new ErrorResponse(
-            request.getRequestURI(),
             exception.getMessage(),
             HttpStatus.INTERNAL_SERVER_ERROR.value(),
             LocalDateTime.now()
@@ -104,10 +88,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException exception,
-                                                         HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException exception) {
         ErrorResponse errorResponse = new ErrorResponse(
-            request.getRequestURI(),
             exception.getMessage(),
             HttpStatus.INTERNAL_SERVER_ERROR.value(),
             LocalDateTime.now()

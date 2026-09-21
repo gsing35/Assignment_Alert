@@ -18,7 +18,9 @@ import com.assignment_alert.Assignment_Alert.exceptions.CanvasApiException;
 import com.assignment_alert.Assignment_Alert.exceptions.InvalidTokenException;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 // This class is the api I make to access elements in canvas it will send get requests to canvas and talk to their api
@@ -44,7 +46,8 @@ public class CanvasApiClient {
         } catch (HttpClientErrorException.Unauthorized e) {
             throw new InvalidTokenException("Invalid Canvas access token");
         } catch (Exception e) {
-            throw new CanvasApiException("Failed to connect to Canvas: " + e.getMessage() + " " + url);
+            log.warn("Canvas request to {} failed: {}", url, e.getMessage());
+            throw new CanvasApiException("Failed to connect to Canvas. Check the institution URL and try again.");
         }
 
     }

@@ -53,7 +53,6 @@ export interface UserResponseDTO {
 
 // Error response from backend
 export interface ErrorResponse {
-    path: string
     message: string
     statusCode: number
     localDateTime: string

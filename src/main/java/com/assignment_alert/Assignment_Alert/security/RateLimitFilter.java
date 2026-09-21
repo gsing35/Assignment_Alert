@@ -73,11 +73,14 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
         long retryAfterSeconds = tryAcquire(key, rule);
         if (retryAfterSeconds > 0) {
+            long retryAfterMinutes = (retryAfterSeconds + 59) / 60;
+            String unit = retryAfterMinutes == 1 ? " minute." : " minutes.";
+
             response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
             response.setHeader("Retry-After", String.valueOf(retryAfterSeconds));
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.getWriter().write(
-                    "{\"message\":\"Too many requests. Try again in " + retryAfterSeconds + " seconds.\"}");
+                    "{\"message\":\"Too many requests. Try again in " + retryAfterMinutes + unit + "\"}");
             return;
         }
 
