@@ -1,36 +1,35 @@
 package com.assignment_alert.Assignment_Alert.courses;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.assignment_alert.Assignment_Alert.user.User;
+import com.assignment_alert.Assignment_Alert.security.AuthenticatedUser;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/courses")
 @RestController
-@CrossOrigin
 public class CourseController {
 
     private final CourseService courseService;
 
-    @GetMapping("/{courseId}/users/{userId}")
-    public ResponseEntity<CourseResponseDTO> getCourseByIdAndUser(@PathVariable Long courseId, @PathVariable Long userId) {
-        return ResponseEntity.ok(courseService.getCourseByIdAndUser(courseId, userId));
+    @GetMapping("/{courseId}")
+    public ResponseEntity<CourseResponseDTO> getCourse(
+            @PathVariable Long courseId,
+            @AuthenticationPrincipal AuthenticatedUser user) {
+        return ResponseEntity.ok(courseService.getCourseByIdAndUser(courseId, user.userId()));
     }
 
-    @PutMapping("/{courseId}/users/{userId}")
-    public ResponseEntity<CourseResponseDTO> updateAssignments(@PathVariable Long courseId, @PathVariable Long userId ) {
-        return ResponseEntity.ok(courseService.updateAssignments(courseId, userId));
+    @PutMapping("/{courseId}")
+    public ResponseEntity<CourseResponseDTO> updateAssignments(
+            @PathVariable Long courseId,
+            @AuthenticationPrincipal AuthenticatedUser user) {
+        return ResponseEntity.ok(courseService.updateAssignments(courseId, user.userId()));
     }
-
-    
-}   
-//225702
+}

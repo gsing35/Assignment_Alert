@@ -8,11 +8,16 @@ export type CanvasSession = {
     name: string
     email: string
     schoolDomain: string
+    sessionToken: string
 }
 
 export async function getStoredSession(): Promise<CanvasSession | null> {
     const result = await chrome.storage.local.get(STORAGE_KEY)
-    return (result[STORAGE_KEY] as CanvasSession | undefined) ?? null
+    const session = result[STORAGE_KEY] as CanvasSession | undefined
+    if (!session?.sessionToken) {
+        return null
+    }
+    return session
 }
 
 export async function saveSession(session: CanvasSession): Promise<void> {
@@ -23,11 +28,20 @@ export async function clearSession(): Promise<void> {
     await chrome.storage.local.remove(STORAGE_KEY)
 }
 
-// Return the userId of the logged-in Canvas user, or throw an error if no session is found.
-export async function requireUserId(): Promise<number> {
+export async function requireToken(): Promise<string> {
     const session = await getStoredSession()
     if (!session) {
         throw new Error('No Canvas session found. Please log in.')
     }
-    return session.userId
+    return session.sessionToken
+}
+
+export function onSessionCleared(callback: () => void): () => void {
+    const listener = (changes: { [key: string]: chrome.storage.StorageChange }, areaName: string) => {
+        if (areaName === 'local' && STORAGE_KEY in changes && changes[STORAGE_KEY].newValue === undefined) {
+            callback()
+        }
+    }
+    chrome.storage.onChanged.addListener(listener)
+    return () => chrome.storage.onChanged.removeListener(listener)
 }

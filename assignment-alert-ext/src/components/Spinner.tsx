@@ -8,8 +8,6 @@
     'inline' — small bare ring meant to sit next to text inside a button
 
   The ring's size, speed and colors are in index.css under .spinner.
-
-  Fully commented reference copy: ~/Documents/Assignment_Alert_frontend_notes/
 */
 
 type SpinnerProps = {

@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { getUserByUserId } from '../api/users'
-import { requireUserId } from '../lib/canvasSession'
+import { getCurrentUser } from '../api/users'
 import { DEFAULT_FILTER, fetchAssignments, includesPastWork } from '../lib/assignmentFilter'
 import type { AssignmentResponseDTO, CourseResponseDTO } from '../types'
 import FilterOptions from './FilterOptions'
@@ -24,8 +23,6 @@ import './UpcomingCalendar.css'
 
   Note: getUpcomingAssignments() returns only work due after right now, so past
   days are always empty.
-
-  Fully commented reference copy: ~/Documents/Assignment_Alert_frontend_notes/
 */
 
 const TOTAL_WEEKS = 2
@@ -95,8 +92,7 @@ function UpcomingCalendar() {
     useEffect(() => {
         let cancelled = false
 
-        requireUserId()
-            .then((userId) => getUserByUserId(userId))
+        getCurrentUser()
             .then((user) => {
                 if (!cancelled) setCourses(user.courses ?? [])
             })

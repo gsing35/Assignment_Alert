@@ -9,12 +9,10 @@
     #root ............................ the popup's own size. Chrome caps it at 800x600
     body, h1, h2, p .................. element defaults
     .spinner and friends ............. the loading animation, used by Spinner.tsx
-
-  Fully commented reference copy: ~/Documents/Assignment_Alert_frontend_notes/
 */
 
 :root {
-
+    /* if you want to use light mode edit these values to what you would like */
   --text: #f3f1f5;
   --text-h: #08060d;
   --bg: #fff;

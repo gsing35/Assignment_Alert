@@ -31,6 +31,7 @@ export interface CanvasConnectionDTO {
     email: string
     schoolDomain: string
     message: string
+    sessionToken: string
 }
 
 // What backend returns from /api/v1/courses/{id}

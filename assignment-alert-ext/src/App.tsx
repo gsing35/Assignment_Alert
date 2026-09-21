@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import CanvasLoginView from './components/CanvasLoginView'
 import UpcomingCalendar from './components/UpcomingCalendar'
 import Spinner from './components/Spinner'
-import { clearSession, getStoredSession } from './lib/canvasSession'
+import { clearSession, getStoredSession, onSessionCleared } from './lib/canvasSession'
 import type { CanvasSession } from './lib/canvasSession'
 import './App.css'
 
@@ -15,8 +15,6 @@ import './App.css'
 
   handleDisconnect clears the stored session, which drops back to screen 2.
   The signed-in screen's wording lives here; its styling is in App.css.
-
-  Fully commented reference copy: ~/Documents/Assignment_Alert_frontend_notes/
 */
 
 function App() {
@@ -29,6 +27,8 @@ function App() {
             setCheckingSession(false)
         })
     }, [])
+
+    useEffect(() => onSessionCleared(() => setSession(null)), [])
 
     async function handleDisconnect() {
         await clearSession()

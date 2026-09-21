@@ -20,6 +20,10 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
+app:
+  cors:
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:}
+
 aws:
   region: ${AWS_REGION}
   # No credentials needed on EC2 - IAM role handles it!

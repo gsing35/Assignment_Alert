@@ -1,3 +1,5 @@
+import { clearSession, getStoredSession } from '../lib/canvasSession'
+
 // How long to wait for the backend before giving up, in milliseconds.
 export const DEFAULT_TIMEOUT_MS = 10_000
 // Longer limit for calls that make the backend sync with Canvas (login, course refresh), which can be slow.
@@ -6,8 +8,15 @@ export const SYNC_TIMEOUT_MS = 60_000
 // Same as fetch(), but gives up after timeoutMs and turns network failures into readable errors,
 // so the UI shows a message instead of loading forever when the server is unreachable.
 export async function fetchWithTimeout(url: string, init: RequestInit = {}, timeoutMs = DEFAULT_TIMEOUT_MS): Promise<Response> {
+    const session = await getStoredSession()
+    const headers = new Headers(init.headers)
+    if (session && !headers.has('Authorization')) {
+        headers.set('Authorization', `Bearer ${session.sessionToken}`)
+    }
+
+    let response: Response
     try {
-        return await fetch(url, { ...init, signal: AbortSignal.timeout(timeoutMs) })
+        response = await fetch(url, { ...init, headers, signal: AbortSignal.timeout(timeoutMs) })
     } catch (err) {
         if (err instanceof DOMException && err.name === 'TimeoutError') {
             throw new Error(`Can't reach the server (no response after ${timeoutMs / 1000}s). Check your connection or that the server is running.`)
@@ -17,6 +26,12 @@ export async function fetchWithTimeout(url: string, init: RequestInit = {}, time
         }
         throw err
     }
+
+    if (response.status === 401 && session) {
+        await clearSession()
+    }
+
+    return response
 }
 
 export async function handleResponse<T>(response: Response): Promise<T> {  // Generic function to handle API responses and errors

@@ -19,8 +19,6 @@ import './CanvasLoginView.css'
 
   All the wording on this screen lives here: the title, the subtitle, the field
   labels, the input placeholders, the error text, and the button.
-
-  Fully commented reference copy: ~/Documents/Assignment_Alert_frontend_notes/
 */
 
 type CanvasLoginViewProps = {
@@ -57,6 +55,7 @@ function CanvasLoginView({ onConnected }: CanvasLoginViewProps) {
                 name: connection.name,
                 email: connection.email,
                 schoolDomain: connection.schoolDomain,
+                sessionToken: connection.sessionToken,
             }
             await saveSession(session)
             onConnected(session)
