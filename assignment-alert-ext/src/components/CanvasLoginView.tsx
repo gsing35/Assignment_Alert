@@ -18,7 +18,7 @@ import './CanvasLoginView.css'
     CanvasLoginView ........ form state, handleSubmit, and the rendered form
 
   All the wording on this screen lives here: the title, the subtitle, the field
-  labels, the input placeholders, the error text, and the button.
+  labels, the error text, and the button.
 */
 
 type CanvasLoginViewProps = {
@@ -79,7 +79,6 @@ function CanvasLoginView({ onConnected }: CanvasLoginViewProps) {
                 <input
                     id="domain"
                     type="text"
-                    placeholder="canvas.vt.edu"
                     value={domain}
                     onChange={(e) => setDomain(e.target.value)}
                     disabled={loading}
@@ -91,7 +90,6 @@ function CanvasLoginView({ onConnected }: CanvasLoginViewProps) {
                 <input
                     id="accessToken"
                     type="password"
-                    placeholder="Paste your access token"
                     value={accessToken}
                     onChange={(e) => setAccessToken(e.target.value)}
                     disabled={loading}
