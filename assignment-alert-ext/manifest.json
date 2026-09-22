@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Assignment Alert",
-    "version": "0.0.1",
+    "version": "1.0",
     "action": {
         "default_popup": "index.html"
     },
@@ -11,8 +11,7 @@
         "alarms"
     ],
     "host_permissions": [
-        "http://localhost:8080/*",
-        "http://100.109.228.88:8080/*"
+        "http://localhost:8080/*"
     ],
     "background": {
         "service_worker": "src/background.ts",

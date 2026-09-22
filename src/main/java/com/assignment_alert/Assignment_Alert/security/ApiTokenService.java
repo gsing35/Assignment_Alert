@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,9 @@ public class ApiTokenService {
 
     private final ApiTokenRepository tokenRepo;
 
+    @Value("${app.security.token-ttl-days:30}")
+    private long tokenTtlDays;
+
     // Create a new token for a user, and delete any old ones, only time the raw token is passed
     @Transactional
     public String issueToken(User user) {
@@ -38,6 +42,7 @@ public class ApiTokenService {
         record.setTokenHash(hash(token));
         record.setUser(user);
         record.setCreatedAt(LocalDateTime.now());
+        record.setExpiresAt(LocalDateTime.now().plusDays(tokenTtlDays));
 
         tokenRepo.save(record);
         return token;           // Return to actual token to the frontend, only time it will be used

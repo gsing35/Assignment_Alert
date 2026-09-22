@@ -26,10 +26,6 @@ public class SecurityConfig {
     private final TokenAuthFilter tokenAuthFilter;
     private final RateLimitFilter rateLimitFilter;
 
-    // CHANGE THIS VALUE TO ACCEPT THE YOUR EXTENSION ID
-    // DEFAULT: @Value("${}") Accept none
-    // EXAMPLE: extenion id is qwertyuiopasdfghjklzxcvbnm 
-    // @Value("${chrome-extension://qwertyuiopasdfghjklzxcvbnm}")
     @Value("${app.cors.allowed-origins:}")
     private List<String> allowedOrigins;
 

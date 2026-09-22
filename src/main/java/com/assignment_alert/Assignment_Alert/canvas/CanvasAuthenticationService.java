@@ -26,13 +26,17 @@ public class CanvasAuthenticationService {
 
     private final CanvasUserDTOMapper userMapper;
 
+    private final CanvasDomainValidator domainValidator;
+
     // Get the dto from the api checking that the domain and token are valid then use mapper to create user entity with all the fields and then sync the user with their assignments
     @Transactional
     public User connectCanvasAccount(String domain, String canvasToken) {
 
-        CanvasUserDTO userDto = canvasApi.validateTokenAndGetUser(domain, canvasToken);
+        String normalizedDomain = domainValidator.normalize(domain);
 
-        User user = userMapper.toEntity(userDto, domain, userRepo, canvasToken, secretManager);
+        CanvasUserDTO userDto = canvasApi.validateTokenAndGetUser(normalizedDomain, canvasToken);
+
+        User user = userMapper.toEntity(userDto, normalizedDomain, userRepo, canvasToken, secretManager);
         user = userRepo.save(user);
         syncService.initalSync(user);
 

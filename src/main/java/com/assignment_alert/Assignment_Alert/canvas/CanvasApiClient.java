@@ -28,55 +28,46 @@ public class CanvasApiClient {
 
     private final RestTemplate restTemplate;
 
+    private final CanvasDomainValidator domainValidator;
+
     public CanvasUserDTO validateTokenAndGetUser(String schoolDomain, String token) {
-        String url = "";
+        String fullUrl = domainValidator.normalize(schoolDomain) + "/api/v1/users/self/profile";
+
         try {
-            String fullUrl = schoolDomain + "/api/v1/users/self/profile";
-            url = fullUrl;
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth(token);
-
-            HttpEntity<String> entity = new HttpEntity<>(headers);
-
-            ResponseEntity<CanvasUserDTO> response = restTemplate.exchange(fullUrl, HttpMethod.GET, entity, CanvasUserDTO.class);
+            ResponseEntity<CanvasUserDTO> response = restTemplate.exchange(fullUrl, HttpMethod.GET, authorized(token), CanvasUserDTO.class);
 
             return response.getBody();
 
         } catch (HttpClientErrorException.Unauthorized e) {
             throw new InvalidTokenException("Invalid Canvas access token");
         } catch (Exception e) {
-            log.warn("Canvas request to {} failed: {}", url, e.getMessage());
+            log.warn("Canvas request to {} failed: {}", fullUrl, e.getMessage());
             throw new CanvasApiException("Failed to connect to Canvas. Check the institution URL and try again.");
         }
-
     }
 
     public List<CanvasCourseDTO> getCourses(String schoolDomain, String token) {
-        String fullUrl = schoolDomain + "/api/v1/courses?per_page=1000";
+        String fullUrl = domainValidator.normalize(schoolDomain) + "/api/v1/courses?per_page=1000";
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        ResponseEntity<CanvasCourseDTO[]> response = restTemplate.exchange(fullUrl, HttpMethod.GET, entity, CanvasCourseDTO[].class);
+        ResponseEntity<CanvasCourseDTO[]> response = restTemplate.exchange(fullUrl, HttpMethod.GET, authorized(token), CanvasCourseDTO[].class);
 
         return Arrays.asList(response.getBody());
     }
 
     public List<CanvasAssignmentDTO> getAssignments(String schoolDomain, String token, Long canvasCourseId) {
-        String fullUrl = schoolDomain + "/api/v1/courses/" + canvasCourseId + "/assignments?per_page=1000&include[]=submission&include[]=score_statistics";
+        String fullUrl = domainValidator.normalize(schoolDomain) + "/api/v1/courses/" + canvasCourseId
+                + "/assignments?per_page=1000&include[]=submission&include[]=score_statistics";
 
+        ResponseEntity<CanvasAssignmentDTO[]> response = restTemplate.exchange(fullUrl, HttpMethod.GET, authorized(token), CanvasAssignmentDTO[].class);
+
+        return Arrays.asList(response.getBody());
+    }
+
+    private HttpEntity<String> authorized(String token) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
 
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        ResponseEntity<CanvasAssignmentDTO[]> response = restTemplate.exchange(fullUrl, HttpMethod.GET, entity, CanvasAssignmentDTO[].class);
-
-        return Arrays.asList(response.getBody());
-
+        return new HttpEntity<>(headers);
     }
 
 }

@@ -33,7 +33,6 @@ public class AwsSecretsManagerService {
     public String postToken(Long userId, String token) {
         try {
             String secretName = "User-" + userId;
-            log.info("This is secret name: {}", secretName);
 
             CreateSecretRequest postRequest = CreateSecretRequest.builder()
                     .name(secretName)
@@ -42,8 +41,6 @@ public class AwsSecretsManagerService {
                     .build();
 
             CreateSecretResponse postResponse = secretClient.createSecret(postRequest);
-
-            log.info("ARN to return {}", postResponse.arn());
 
             return postResponse.arn().substring(52);
 
@@ -71,8 +68,6 @@ public class AwsSecretsManagerService {
 
             PutSecretValueResponse putResponse = secretClient.putSecretValue(putRequest);
 
-            log.info("ARN to return {}", putResponse.arn());
-
             return putResponse.arn().substring(52);
 
         } catch (Exception e) {
@@ -83,16 +78,12 @@ public class AwsSecretsManagerService {
     public String getToken(Long userId) {
         try {
             String secretName = "User-" + userId;
-            log.info("This is userId from getToken", userId);
 
             GetSecretValueRequest getRequest = GetSecretValueRequest.builder()
                     .secretId(secretName)
                     .build();
 
             GetSecretValueResponse getResponse = secretClient.getSecretValue(getRequest);
-
-            log.info("This is getResponse.secretString {}", getResponse.secretString());
-            // Check to see what this returns make it a substring if it is like 60 chars long
 
             return getResponse.secretString();
 

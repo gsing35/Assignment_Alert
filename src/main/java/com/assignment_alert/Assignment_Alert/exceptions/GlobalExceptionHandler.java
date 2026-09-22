@@ -12,89 +12,51 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AssignmentNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleAssignmentNotFound(AssignmentNotFoundException exception) {
-        ErrorResponse errorResponse = new ErrorResponse(
-            exception.getMessage(),
-            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-            LocalDateTime.now()
-        );
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        return build(exception.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(CourseNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleCourseNotFound(CourseNotFoundException exception) {
-        ErrorResponse errorResponse = new ErrorResponse(
-            exception.getMessage(),
-            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-            LocalDateTime.now()
-        );
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler(DuplicateAssignmentException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicateAssignmentFound(DuplicateAssignmentException exception) {
-        ErrorResponse errorResponse = new ErrorResponse(
-            exception.getMessage(),
-            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-            LocalDateTime.now()
-        );
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler(DuplicateCourseException.class)
-    public ResponseEntity<ErrorResponse> hanldeDuplicateCourseFound(DuplicateCourseException exception) {
-        ErrorResponse errorResponse = new ErrorResponse(
-            exception.getMessage(),
-            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-            LocalDateTime.now()
-        );
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler(RequestValidationException.class)
-    public ResponseEntity<ErrorResponse> handleRequestValidation(RequestValidationException exception) {
-        ErrorResponse errorResponse = new ErrorResponse(
-            exception.getMessage(),
-            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-            LocalDateTime.now()
-        );
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler(InvalidTokenException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidToken(InvalidTokenException exception) {
-        ErrorResponse errorResponse = new ErrorResponse(
-            exception.getMessage(),
-            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-            LocalDateTime.now()
-        );
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler(CanvasApiException.class)
-    public ResponseEntity<ErrorResponse> handleCanvasApi(CanvasApiException exception) {
-        ErrorResponse errorResponse = new ErrorResponse(
-            exception.getMessage(),
-            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-            LocalDateTime.now()
-        );
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        return build(exception.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException exception) {
+        return build(exception.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(DuplicateAssignmentException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateAssignmentFound(DuplicateAssignmentException exception) {
+        return build(exception.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(DuplicateCourseException.class)
+    public ResponseEntity<ErrorResponse> hanldeDuplicateCourseFound(DuplicateCourseException exception) {
+        return build(exception.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(RequestValidationException.class)
+    public ResponseEntity<ErrorResponse> handleRequestValidation(RequestValidationException exception) {
+        return build(exception.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidToken(InvalidTokenException exception) {
+        return build(exception.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(CanvasApiException.class)
+    public ResponseEntity<ErrorResponse> handleCanvasApi(CanvasApiException exception) {
+        return build(exception.getMessage(), HttpStatus.BAD_GATEWAY);
+    }
+
+    private ResponseEntity<ErrorResponse> build(String message, HttpStatus status) {
         ErrorResponse errorResponse = new ErrorResponse(
-            exception.getMessage(),
-            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            message,
+            status.value(),
             LocalDateTime.now()
         );
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(errorResponse, status);
     }
 }
