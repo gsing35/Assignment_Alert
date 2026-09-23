@@ -27,9 +27,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Table(name = "courses", uniqueConstraints = {
-    @UniqueConstraint(name = "unique_course_url", columnNames = "url"),
-    @UniqueConstraint(name = "unique_course_id", columnNames = "courseId")
-
+    @UniqueConstraint(name = "unique_course_url_per_user", columnNames = {"url", "user_id"})
 })
 @Entity
 public class Course {
