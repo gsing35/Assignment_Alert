@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
+import { markAsCompleted, updateAssignment } from '../api/assignments'
 import { getCurrentUser } from '../api/users'
 import { DEFAULT_FILTER, fetchAssignments, includesPastWork } from '../lib/assignmentFilter'
-import type { AssignmentResponseDTO, CourseResponseDTO } from '../types'
+import type { AssignmentResponseDTO, CourseResponseDTO, Priority } from '../types'
 import FilterOptions from './FilterOptions'
 import Spinner from './Spinner'
 import './UpcomingCalendar.css'
@@ -28,6 +29,8 @@ import './UpcomingCalendar.css'
 const TOTAL_WEEKS = 2
 
 const DAY_LABELS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
+
+const PRIORITY_CHOICES: Priority[] = ['HIGH', 'MEDIUM', 'LOW', 'DONE']
 
 function toDateKey(date: Date): string {
     const year = date.getFullYear()
@@ -62,6 +65,9 @@ function UpcomingCalendar() {
     const [filter, setFilter] = useState<string>(DEFAULT_FILTER)
     // Courses for the filter panel's course dropdown.
     const [courses, setCourses] = useState<CourseResponseDTO[]>([])
+
+    const [savingIds, setSavingIds] = useState<number[]>([])
+    const [rowErrors, setRowErrors] = useState<Record<number, string>>({})
 
     // Refetches whenever the filter changes, so each choice hits its own endpoint.
     useEffect(() => {
@@ -129,6 +135,49 @@ function UpcomingCalendar() {
         firstDayOfNewWeek.setDate(firstDayOfNewWeek.getDate() - firstDayOfNewWeek.getDay())
         firstDayOfNewWeek.setDate(firstDayOfNewWeek.getDate() + nextOffset * 7)
         setSelectedKey(toDateKey(firstDayOfNewWeek))
+    }
+
+    function replaceAssignment(updated: AssignmentResponseDTO) {
+        setAssignments((current) =>
+            current.map((item) => (item.assignmentId === updated.assignmentId ? updated : item))
+        )
+    }
+
+    async function saveChange(
+        assignmentId: number,
+        save: () => Promise<AssignmentResponseDTO>
+    ): Promise<void> {
+        setSavingIds((current) => [...current, assignmentId])
+        setRowErrors((current) => {
+            const next = { ...current }
+            delete next[assignmentId]
+            return next
+        })
+
+        try {
+            replaceAssignment(await save())
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Could not save that change.'
+            setRowErrors((current) => ({ ...current, [assignmentId]: message }))
+        } finally {
+            setSavingIds((current) => current.filter((id) => id !== assignmentId))
+        }
+    }
+
+    function handleToggleCompleted(assignment: AssignmentResponseDTO) {
+        const next = !assignment.completed
+        saveChange(assignment.assignmentId, () => markAsCompleted(assignment.assignmentId, next))
+    }
+
+    function handlePriorityChange(assignment: AssignmentResponseDTO, priority: Priority) {
+        saveChange(assignment.assignmentId, () =>
+            updateAssignment(assignment.assignmentId, {
+                completed: null,
+                priority,
+                blockedUntil: null,
+                blockingEnabled: null,
+            })
+        )
     }
 
     const days = useMemo(
@@ -296,19 +345,60 @@ function UpcomingCalendar() {
                     <p className="calendar-empty">Nothing Due.</p>
                 ) : (
                     <ul className="calendar-assignment-list">
-                        {selectedAssignments.map((assignment) => (
-                            <li key={assignment.assignmentId}>
-                                <a
-                                    className="calendar-assignment-link"
-                                    href={assignment.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                    {assignment.assignmentName}
-                                </a>
-                                <span className="calendar-course">{assignment.courseName}</span>
-                            </li>
-                        ))}
+                        {selectedAssignments.map((assignment) => {
+                            const saving = savingIds.includes(assignment.assignmentId)
+                            const rowError = rowErrors[assignment.assignmentId]
+
+                            return (
+                                <li key={assignment.assignmentId}>
+                                    <div className="calendar-assignment-row">
+                                        <input
+                                            type="checkbox"
+                                            className="calendar-assignment-check"
+                                            checked={assignment.completed === true}
+                                            disabled={saving}
+                                            onChange={() => handleToggleCompleted(assignment)}
+                                            aria-label={`Mark ${assignment.assignmentName} complete`}
+                                        />
+
+                                        <a
+                                            className={[
+                                                'calendar-assignment-link',
+                                                assignment.completed === true && 'is-done',
+                                            ]
+                                                .filter(Boolean)
+                                                .join(' ')}
+                                            href={assignment.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            {assignment.assignmentName}
+                                        </a>
+
+                                        <select
+                                            className="calendar-priority-select"
+                                            value={assignment.priority}
+                                            disabled={saving}
+                                            onChange={(e) =>
+                                                handlePriorityChange(assignment, e.target.value as Priority)
+                                            }
+                                            aria-label={`Priority for ${assignment.assignmentName}`}
+                                        >
+                                            {PRIORITY_CHOICES.map((choice) => (
+                                                <option key={choice} value={choice}>
+                                                    {choice.charAt(0)}
+                                                    {choice.slice(1).toLowerCase()}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <span className="calendar-course">{assignment.courseName}</span>
+
+                                    {rowError && <span className="calendar-row-error">{rowError}</span>}
+                                </li>
+                            )
+                        })}
                     </ul>
                 )}
             </div>

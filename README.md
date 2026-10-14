@@ -336,7 +336,7 @@
   │       ├── lib/            Session storage, filter logic
   │       └── types/          TypeScript copies of the backend's response shapes
   ├── docker-compose.yml
-  ├── dockerfile
+  ├── Dockerfile
   └── .env.example
   ```
 

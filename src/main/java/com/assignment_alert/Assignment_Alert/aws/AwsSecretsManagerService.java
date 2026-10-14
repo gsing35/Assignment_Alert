@@ -24,10 +24,6 @@ public class AwsSecretsManagerService {
     private String region;
 
     private final SecretsManagerClient secretClient;
-    // TODO implement the methods needed to store and get secrets from secret manager 
-    // all the basic crud methods for the tokens, dont need to make controller bc this is util class that will be use dby other servives
-    // Make controllers for when users would "access" it
-    // Some good architecure and method info on recent claudes
 
     // Take input from frontend and try to store token in secret manager, if secret name (userId) exists in secret manager then update token
     public String postToken(Long userId, String token) {
