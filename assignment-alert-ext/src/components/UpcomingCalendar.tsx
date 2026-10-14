@@ -294,8 +294,8 @@ function UpcomingCalendar() {
                     const isToday = key === todayKey
                     const isPast = date < today
                     const isSelected = key === selectedKey
-                    // Any HIGH-priority work that day earns a "!" on the badge.
-                    const hasUrgent = dayAssignments.some((a) => a.priority === 'HIGH')
+                    const outstanding = dayAssignments.filter((a) => a.completed !== true)
+                    const hasUrgent = outstanding.some((a) => a.priority === 'HIGH')
 
                     return (
                         <button
@@ -306,7 +306,8 @@ function UpcomingCalendar() {
                                 isToday && 'is-today',
                                 isPast && 'is-past',
                                 isSelected && 'is-selected',
-                                dayAssignments.length > 0 && 'has-due',
+                                outstanding.length > 0 && 'has-due',
+                                dayAssignments.length > 0 && outstanding.length === 0 && 'is-cleared',
                             ]
                                 .filter(Boolean)
                                 .join(' ')}
@@ -314,7 +315,7 @@ function UpcomingCalendar() {
                         >
                             <span className="calendar-day-number">{date.getDate()}</span>
 
-                            {dayAssignments.length > 0 && (
+                            {outstanding.length > 0 && (
                                 <span
                                     className={[
                                         'calendar-day-count',
@@ -323,7 +324,7 @@ function UpcomingCalendar() {
                                         .filter(Boolean)
                                         .join(' ')}
                                 >
-                                    {dayAssignments.length}
+                                    {outstanding.length}
                                     {hasUrgent && '!'}
                                 </span>
                             )}

@@ -137,6 +137,11 @@
     font-weight: 600;
 }
 
+.calendar-day.is-cleared {
+    opacity: 0.6;
+    border-style: dashed;
+}
+
 .calendar-day-count {
     position: absolute;
     top: -4px;
