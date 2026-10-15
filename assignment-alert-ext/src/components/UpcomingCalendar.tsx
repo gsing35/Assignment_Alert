@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
-import { markAsCompleted, updateAssignment } from '../api/assignments'
+import { getAssignmentById, markAsCompleted, updateAssignment } from '../api/assignments'
+import { updateAssignments } from '../api/courses'
 import { getCurrentUser } from '../api/users'
-import { DEFAULT_FILTER, fetchAssignments, includesPastWork } from '../lib/assignmentFilter'
+import {
+    DEFAULT_FILTER,
+    courseIdFromFilter,
+    fetchAssignments,
+    includesPastWork,
+} from '../lib/assignmentFilter'
 import type { AssignmentResponseDTO, CourseResponseDTO, Priority } from '../types'
 import FilterOptions from './FilterOptions'
 import Spinner from './Spinner'
@@ -30,7 +36,11 @@ const TOTAL_WEEKS = 2
 
 const DAY_LABELS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 
-const PRIORITY_CHOICES: Priority[] = ['HIGH', 'MEDIUM', 'LOW', 'DONE']
+const PRIORITY_CHOICES: Priority[] = ['HIGH', 'MEDIUM', 'LOW']
+
+function priorityChoicesFor(assignment: AssignmentResponseDTO): Priority[] {
+    return assignment.priority === 'DONE' ? [...PRIORITY_CHOICES, 'DONE'] : PRIORITY_CHOICES
+}
 
 function toDateKey(date: Date): string {
     const year = date.getFullYear()
@@ -68,6 +78,10 @@ function UpcomingCalendar() {
 
     const [savingIds, setSavingIds] = useState<number[]>([])
     const [rowErrors, setRowErrors] = useState<Record<number, string>>({})
+
+    const [syncing, setSyncing] = useState(false)
+    const [syncError, setSyncError] = useState<string | null>(null)
+    const [syncedAt, setSyncedAt] = useState<string | null>(null)
 
     // Refetches whenever the filter changes, so each choice hits its own endpoint.
     useEffect(() => {
@@ -164,6 +178,42 @@ function UpcomingCalendar() {
         }
     }
 
+    async function handleResyncCourse(courseId: number) {
+        setSyncing(true)
+        setSyncError(null)
+
+        try {
+            const course = await updateAssignments(courseId)
+            setAssignments(course.assignments ?? [])
+            setSyncedAt(new Date().toLocaleTimeString(undefined, {
+                hour: 'numeric',
+                minute: '2-digit',
+            }))
+        } catch (err) {
+            setSyncError(err instanceof Error ? err.message : 'Could not re-sync that course.')
+        } finally {
+            setSyncing(false)
+        }
+    }
+
+    async function handleRefreshRow(assignmentId: number) {
+        setSavingIds((current) => [...current, assignmentId])
+
+        try {
+            replaceAssignment(await getAssignmentById(assignmentId))
+            setRowErrors((current) => {
+                const next = { ...current }
+                delete next[assignmentId]
+                return next
+            })
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Could not refresh that assignment.'
+            setRowErrors((current) => ({ ...current, [assignmentId]: message }))
+        } finally {
+            setSavingIds((current) => current.filter((id) => id !== assignmentId))
+        }
+    }
+
     function handleToggleCompleted(assignment: AssignmentResponseDTO) {
         const next = !assignment.completed
         saveChange(assignment.assignmentId, () => markAsCompleted(assignment.assignmentId, next))
@@ -176,6 +226,17 @@ function UpcomingCalendar() {
                 priority,
                 blockedUntil: null,
                 blockingEnabled: null,
+            })
+        )
+    }
+
+    function handleToggleBlocking(assignment: AssignmentResponseDTO) {
+        saveChange(assignment.assignmentId, () =>
+            updateAssignment(assignment.assignmentId, {
+                completed: null,
+                priority: null,
+                blockedUntil: null,
+                blockingEnabled: !assignment.blockingEnabled,
             })
         )
     }
@@ -223,6 +284,28 @@ function UpcomingCalendar() {
     // would unmount it and take away the control you just used.
     const filterBox = <FilterOptions value={filter} onChange={setFilter} courses={courses} />
 
+    const activeCanvasCourseId = courseIdFromFilter(filter)
+    const activeCourse = courses.find((c) => c.canvasCourseId === activeCanvasCourseId)
+
+    const syncBar = activeCourse !== undefined && (
+        <div className="calendar-sync">
+            <button
+                type="button"
+                className="calendar-sync-button"
+                onClick={() => handleResyncCourse(activeCourse.courseId)}
+                disabled={syncing}
+            >
+                {syncing && <Spinner variant="inline" />}
+                {syncing ? 'Re-syncing…' : 'Re-sync this course'}
+            </button>
+
+            {syncError && <span className="calendar-sync-error">{syncError}</span>}
+            {!syncError && syncedAt && (
+                <span className="calendar-sync-note">Last synced {syncedAt}</span>
+            )}
+        </div>
+    )
+
     if (loading) {
         return (
             <div className="upcoming-calendar">
@@ -244,12 +327,9 @@ function UpcomingCalendar() {
     return (
         <div className="upcoming-calendar">
             {filterBox}
+            {syncBar}
 
-            {/*
-              These filters are not limited to future work, but the calendar only
-              travels forwards, so anything already overdue is in `assignments`
-              without being reachable. Saying so beats looking empty for no reason.
-            */}
+        
             {includesPastWork(filter) && overdueCount > 0 && (
                 <p className="calendar-notice">
                     {overdueCount} overdue {overdueCount === 1 ? 'item is' : 'items are'} hidden —
@@ -385,18 +465,51 @@ function UpcomingCalendar() {
                                             }
                                             aria-label={`Priority for ${assignment.assignmentName}`}
                                         >
-                                            {PRIORITY_CHOICES.map((choice) => (
+                                            {priorityChoicesFor(assignment).map((choice) => (
                                                 <option key={choice} value={choice}>
                                                     {choice.charAt(0)}
                                                     {choice.slice(1).toLowerCase()}
                                                 </option>
                                             ))}
                                         </select>
+
+                                        <button
+                                            type="button"
+                                            className={[
+                                                'calendar-block-button',
+                                                assignment.blockingEnabled && 'is-on',
+                                            ]
+                                                .filter(Boolean)
+                                                .join(' ')}
+                                            onClick={() => handleToggleBlocking(assignment)}
+                                            disabled={saving}
+                                            title={
+                                                assignment.blockingEnabled
+                                                    ? 'Blocking on — click to turn off'
+                                                    : 'Blocking off — click to turn on'
+                                            }
+                                            aria-pressed={assignment.blockingEnabled === true}
+                                            aria-label={`Blocking for ${assignment.assignmentName}`}
+                                        >
+                                            {assignment.blockingEnabled ? 'Blocking' : 'Block'}
+                                        </button>
                                     </div>
 
                                     <span className="calendar-course">{assignment.courseName}</span>
 
-                                    {rowError && <span className="calendar-row-error">{rowError}</span>}
+                                    {rowError && (
+                                        <span className="calendar-row-error">
+                                            {rowError}
+                                            <button
+                                                type="button"
+                                                className="calendar-row-retry"
+                                                onClick={() => handleRefreshRow(assignment.assignmentId)}
+                                                disabled={saving}
+                                            >
+                                                Refresh
+                                            </button>
+                                        </span>
+                                    )}
                                 </li>
                             )
                         })}

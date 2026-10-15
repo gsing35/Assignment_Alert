@@ -48,6 +48,15 @@ export function includesPastWork(value: string): boolean {
     return rest === 'incomplete'
 }
 
+// The Canvas course id when a course filter is active, otherwise null.
+export function courseIdFromFilter(value: string): number | null {
+    const [kind, rest] = splitValue(value)
+    if (kind !== 'course') return null
+
+    const parsed = Number(rest)
+    return Number.isFinite(parsed) ? parsed : null
+}
+
 export async function fetchAssignments(value: string): Promise<AssignmentResponseDTO[]> {
     const [kind, rest] = splitValue(value)
 
